@@ -129,6 +129,7 @@ body {
   margin-bottom: 12px;
   color: var(--design-color);
   text-decoration: none;
+  cursor: pointer;
   font-size: 14px;
 }
 
@@ -166,20 +167,21 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f0f0f0; 
+  background-color: var(--white-color); 
   cursor: pointer; 
   position: relative; 
   transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
 }
 
 .social-btn:hover {
-  background: #f5f5f5;
+  background: var(--background-color);
   border-color: var(--design-color);
   transform: translateY(-4px);
 }
 
 .social-btn:active { 
-  transform: translateY(0); 
+  transform: translateY(0);
+  background: var(--design-active-color); 
 }
 
 .social-login .google-btn:active {

@@ -122,7 +122,7 @@ function Auth() {
                   <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
                 </button>
               </div>
-              <button type="button" className="forgot-password" onClick={handleForgotPassword}>Forgot Password?</button>
+              <div type="button" className="forgot-password" onClick={handleForgotPassword}>Forgot Password?</div>
               <button type="submit" className="login-btn">Login</button>
               <p className="login-link mobile-only">
                 Don't have an account?{" "}

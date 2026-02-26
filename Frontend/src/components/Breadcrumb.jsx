@@ -24,7 +24,7 @@ export default function Breadcrumb() {
           return (
             <span key={to} className="breadcrumb-item">
               <span className="separator">
-                <i class="fa-solid fa-angle-right"></i>
+                <i className="fa-solid fa-angle-right"></i>
               </span>
               {isLast ? (
                 <span className="current">

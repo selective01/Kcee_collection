@@ -1,3 +1,22 @@
+:root {
+  --white-color: #ffffff;
+  --black-color: #0b0b0b;
+  --design-color: #3A9D23;       
+  --design-active-color: #27632A;  
+  --background-color: #F5F5DC;    
+  --red-color: #dc3545;          
+  --figcaption-color: #333;        
+  --hero-small-screen: 30px;
+  --hero-large-screen: 48px;
+  --font-small-screen: 12px;
+  --font-large-screen: 16px;
+  --grid-column-small-screen: 1fr 1fr;
+  --grid-column-medium-screen: repeat(3, 1fr);
+  --grid-column-large-screen: repeat(4, 1fr);
+  --accent-primary: #3A9D23;  
+  --accent-soft: #A58C69;   
+}
+
 .cart-page {
   padding: 20px;
   max-width: 900px;
@@ -26,26 +45,21 @@ th {
   background: var(--white-color);
   font-size: 12px;
   font-weight: 900;
+  color: var(--design-color);
 }
 
 td {
   font-size: 12px;
   font-weight: 700;
+  color: var(--design-active-color);
 }
 
 td .qty-input {
-  width: 50%;
-  min-width: 50px; 
+  width: 20%;
+  min-width: 30px; 
+  height: 30px;
   text-align: center;
-}
-
-.cart-size {
-  background: var(--design-color);
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 600;
+  cursor: pointer;
 }
 
 .cart-img {
@@ -74,7 +88,7 @@ td .qty-input {
   font-size: 14px;
   font-weight: 700;
   text-align: right;
-  color: var(--design-color);
+  color: var(--black-color);
 }
 
 .cart-btn-actions {

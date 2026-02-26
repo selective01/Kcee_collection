@@ -75,14 +75,6 @@ const Navbar = () => {
           </span>
           <span className="menu-text">Shop</span>
         </a>
-
-        <a href="#about">
-          <span className="menu-icon">
-            <i className="fa-regular fa-address-card"></i>
-          </span>
-          <span className="menu-text">About</span>
-        </a>
-
         <a href="#contact">
           <span className="menu-icon">
             <i className="fa-solid fa-address-book"></i>

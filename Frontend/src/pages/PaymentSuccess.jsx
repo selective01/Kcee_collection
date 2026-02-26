@@ -23,11 +23,22 @@ export default function PaymentSuccess() {
         );
 
         if (res.data.success) {
+
+          // 🔥 CREATE ORDER AFTER SUCCESS
+          await axios.post(`${BASE_URL}/api/orders`, {
+            user: res.data.userId,        // or however you track user
+            items: res.data.items,        // or get from cart
+            totalPrice: res.data.amount,  // adjust to your structure
+            paymentStatus: "Paid"
+          });
+
           setStatus("Payment successful! Order confirmed.");
+
         } else {
           setStatus("Payment verification failed.");
         }
       } catch (error) {
+        console.error(error);
         setStatus("Something went wrong.");
       }
     };

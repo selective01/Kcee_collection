@@ -30,19 +30,19 @@ const testimonials = [
     name: "Zainab Abubakar",
     message: "Absolutely beautiful! The quality exceeded my expectations and the customer support was very responsive.",
     location: "Dakar, Senegal",
-    image: Avartar6,
+    image: Avartar5,
   },
   {
     name: "Abdulrahman Bello",
     message: "Excellent craftsmanship and fast delivery. It’s rare to find this level of consistency.",
     location: "Abuja, Nigeria",
-    image: Avartar5,
+    image: Avartar4,
   },
   {
     name: "Amina Diallo",
     message: "I love how classy and well-finished everything looks. You can tell care goes into every order.",
     location: "Kano, Nigeria",
-    image: Avartar4,
+    image: Avartar6,
   },
 ];
 

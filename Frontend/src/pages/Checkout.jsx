@@ -68,22 +68,22 @@ export default function Checkout() {
           <h2>Contact Information</h2>
 
           <div className="form-group">
-            <label>Email</label>
+            <label>Email:</label>
             <input
               type="email"
               name="email"
-              placeholder="Enter your email..."
+              placeholder="Enter your email address"
               value={formData.email}
               onChange={handleChange}
             />
           </div>
 
           <div className="form-group">
-            <label>Phone</label>
+            <label>Phone:</label>
             <input
               type="text"
               name="phone"
-              placeholder="Enter your phone..."
+              placeholder="Enter your phone number"
               value={formData.phone}
               onChange={handleChange}
             />
@@ -92,33 +92,33 @@ export default function Checkout() {
           <h2>Shipping Address</h2>
 
           <div className="form-group">
-            <label>Full Name</label>
+            <label>Name:</label>
             <input
               type="text"
               name="fullName"
-              placeholder="Full name"
+              placeholder="Enter your full name"
               value={formData.fullName}
               onChange={handleChange}
             />
           </div>
 
           <div className="form-group">
-            <label>Address</label>
+            <label>Address:</label>
             <input
               type="text"
               name="address"
-              placeholder="Your address..."
+              placeholder="Your current home address"
               value={formData.address}
               onChange={handleChange}
             />
           </div>
 
           <div className="form-group">
-            <label>City</label>
+            <label>City:</label>
             <input
               type="text"
               name="state"
-              placeholder="Your city..."
+              placeholder="Your current city"
               value={formData.state}
               onChange={handleChange}
             />
@@ -130,18 +130,17 @@ export default function Checkout() {
               <input
                 type="text"
                 name="country"
-                placeholder="Your country..."
+                placeholder="Your country"
                 value={formData.country}
                 onChange={handleChange}
               />
             </div>
 
             <div className="form-group">
-              <label>Postal Code</label>
+              <label>Postal Code:</label>
               <input
                 type="text"
                 name="postalCode"
-                placeholder="Your postal code..."
                 value={formData.postalCode}
                 onChange={handleChange}
               />
