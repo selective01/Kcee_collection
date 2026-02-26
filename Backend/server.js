@@ -16,12 +16,21 @@ connectDB();
 
 const app = express();
 
-// Middleware
-app.use(
-  cors({
-    origin: "*", // temporarily allow all
-  })
-);
+// Recommended production-safe CORS setup
+app.use(cors({
+  origin: [
+    'http://localhost:3000',           // your local dev frontend
+    'http://localhost:5173',           // common Vite port
+    'https://kcee-collection.vercel.app',   
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'], // add any custom headers you use
+  credentials: true,   // important if you use cookies or auth headers with credentials
+}));
+
+// Handle preflight OPTIONS requests explicitly (sometimes needed)
+app.options('*', cors());
+
 app.use(express.json());
 app.use("/api/orders", orderRoutes);
 
