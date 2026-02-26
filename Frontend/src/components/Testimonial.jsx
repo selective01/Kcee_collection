@@ -27,10 +27,10 @@ const testimonials = [
     image: Avartar3,
   },
   {
-    name: "Amina Diallo",
+    name: "Zainab Abubakar",
     message: "Absolutely beautiful! The quality exceeded my expectations and the customer support was very responsive.",
     location: "Dakar, Senegal",
-    image: Avartar4,
+    image: Avartar6,
   },
   {
     name: "Abdulrahman Bello",
@@ -39,10 +39,10 @@ const testimonials = [
     image: Avartar5,
   },
   {
-    name: "Zainab Abubakar",
+    name: "Amina Diallo",
     message: "I love how classy and well-finished everything looks. You can tell care goes into every order.",
     location: "Kano, Nigeria",
-    image: Avartar6,
+    image: Avartar4,
   },
 ];
 

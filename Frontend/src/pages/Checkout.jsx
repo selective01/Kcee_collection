@@ -1,37 +1,12 @@
 import { useState } from "react";
 import { useCart } from "../context/CartContext";
+import { useNavigate } from "react-router-dom";
+import { PaystackButton } from "react-paystack";
 import "../assets/css/checkout.css";
 
-const countryStateData = {
-  Nigeria: [
-    "Lagos",
-    "Abuja (FCT)",
-    "Rivers",
-    "Oyo",
-    "Kano",
-    "Enugu",
-  ],
-  "United States": [
-    "California",
-    "Texas",
-    "New York",
-  ],
-};
-
-const shippingFees = {
-  Nigeria: {
-    Lagos: 2000,
-    "Abuja (FCT)": 3000,
-    Rivers: 3500,
-    Oyo: 3000,
-    Kano: 4000,
-    Enugu: 3000,
-  },
-  "United States": 15000, // flat international rate
-};
-
 export default function Checkout() {
-  const { cartItems, subtotal } = useCart();
+  const { cartItems, subtotal, clearCart } = useCart();
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -43,110 +18,45 @@ export default function Checkout() {
     postalCode: "",
   });
 
-  const [errors, setErrors] = useState({});
-  const [shipping, setShipping] = useState(0);
+  const [shipping] = useState(0);
   const grandTotal = subtotal + shipping;
 
-  const isFormValid =
-  Object.values(errors).every((err) => !err) &&
-  formData.fullName &&
-  formData.email &&
-  formData.phone &&
-  formData.address &&
-  formData.country &&
-  formData.state;
-
-  const validateField = (name, value) => {
-    switch (name) {
-        case "fullName":
-        if (!value.trim()) return "Full name is required";
-        break;
-
-        case "email":
-        if (!value) return "Email is required";
-        if (!/\S+@\S+\.\S+/.test(value))
-            return "Invalid email address";
-        break;
-
-        case "phone":
-        if (!value) return "Phone number is required";
-        if (!/^[0-9]{11}$/.test(value))
-            return "Phone must be 11 digits";
-        break;
-
-        case "address":
-        if (!value.trim()) return "Address is required";
-        break;
-
-        case "country":
-        if (!value) return "Country is required";
-        break;
-
-        case "state":
-        if (!value) return "State is required";
-        break;
-
-        case "postalCode":
-        if (!value.trim()) return "Postal code is required";
-        break;
-
-        default:
-        return "";
-    }
-
-    return "";
-    };
-
+  // ✅ Handle Input Change
   const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    let updatedForm = { ...formData, [name]: value };
-
-    if (name === "country") {
-      updatedForm = { ...updatedForm, state: "" };
-      setShipping(0);
-    }
-
-    if (name === "state") {
-      if (updatedForm.country === "Nigeria") {
-        setShipping(shippingFees.Nigeria[value] || 0);
-      } else if (updatedForm.country === "United States") {
-        setShipping(shippingFees["United States"]);
-      }
-    }
-
-    setFormData(updatedForm);
-
-    // 🔥 Real-time validation
-    const error = validateField(name, value);
-    setErrors((prev) => ({
-      ...prev,
-      [name]: error,
-    }));
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const newErrors = {};
-    Object.keys(formData).forEach((key) => {
-      const error = validateField(key, formData[key]);
-      if (error) newErrors[key] = error;
-    });
-
-    setErrors(newErrors);
-
-    if (Object.keys(newErrors).length > 0) {
-      const firstErrorKey = Object.keys(newErrors)[0];
-      const element = document.querySelector(
-        `[name="${firstErrorKey}"]`
+  // ✅ After Successful Payment
+  const handleSuccess = async (reference) => {
+    try {
+      // Verify payment on backend
+      await fetch(
+        `http://localhost:5000/api/paystack/verify/${reference.reference}`
       );
-      element?.scrollIntoView({ behavior: "smooth", block: "center" });
-      return;
-    }
 
-    alert("Order placed successfully!");
+      clearCart();
+      navigate("/cart"); // redirect to cart
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // ✅ Paystack Config
+  const paystackConfig = {
+    email: formData.email,
+    amount: grandTotal * 100, // convert to kobo
+    publicKey: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
+    metadata: {
+      fullName: formData.fullName,
+      phone: formData.phone,
+      address: formData.address,
+    },
+    text: "Place Order",
+    onSuccess: handleSuccess,
+    onClose: () => alert("Payment cancelled"),
   };
 
   return (
@@ -154,164 +64,90 @@ export default function Checkout() {
       <div className="checkout-container">
 
         {/* LEFT SIDE */}
-        <form onSubmit={handleSubmit} className="checkout-left">
-          <h2>Billing Details</h2>
+        <div className="checkout-left">
+          <h2>Contact Information</h2>
 
           <div className="form-group">
-            <label>Full Name*</label>
-            <div className="input-wrapper">
-              <input
-                type="text"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                className={
-                  errors.fullName
-                    ? "input-error"
-                    : formData.fullName
-                    ? "input-valid"
-                    : ""
-                }
-              />
-              {!errors.fullName && formData.fullName && (
-                <span className="checkmark">✓</span>
-              )}
-            </div>
-            {errors.fullName && <span className="error">{errors.fullName}</span>}
-          </div>
-
-          <div className="form-group">
-            <label>Email Address*</label>
-            <div className="input-wrapper">
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className={
-                  errors.email
-                    ? "input-error"
-                    : formData.email
-                    ? "input-valid"
-                    : ""
-                }
-              />
-              {!errors.email && formData.email && (
-                <span className="checkmark">✓</span>
-              )}
-            </div>
-            {errors.email && <span className="error">{errors.email}</span>}
-          </div>
-
-          <div className="form-group">
-            <label>Phone Number*</label>
-            <div className="input-wrapper">
-              <input
-                type="text"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                className={
-                  errors.phone
-                    ? "input-error"
-                    : formData.phone
-                    ? "input-valid"
-                    : ""
-                }
-              />
-              {!errors.fullName && formData.phone && (
-                <span className="checkmark">✓</span>
-              )}
-            </div>
-            {errors.fullName && <span className="error">{errors.phone}</span>}
-          </div>
-
-          <div className="form-group">
-            <label>Address*</label>
-            <div className="input-wrapper">
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                className={
-                  errors.address
-                    ? "input-error"
-                    : formData.address
-                    ? "input-valid"
-                    : ""
-                }
-              />
-              {!errors.address && formData.address && (
-                <span className="checkmark">✓</span>
-              )}
-            </div>
-            {errors.address && <span className="error">{errors.address}</span>}
-          </div>
-
-          <div className="form-group">
-            <label>Country*</label>
-            <select
-              name="country"
-              value={formData.country}
+            <label>Email</label>
+            <input
+              type="email"
+              name="email"
+              placeholder="Enter your email..."
+              value={formData.email}
               onChange={handleChange}
-              required
-            >
-              <option value="">Select Country</option>
-              {Object.keys(countryStateData).map((country) => (
-                <option key={country} value={country}>
-                  {country}
-                </option>
-              ))}
-            </select>
-            {errors.country && <span className="error">{errors.country}</span>}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Phone</label>
+            <input
+              type="text"
+              name="phone"
+              placeholder="Enter your phone..."
+              value={formData.phone}
+              onChange={handleChange}
+            />
+          </div>
+
+          <h2>Shipping Address</h2>
+
+          <div className="form-group">
+            <label>Full Name</label>
+            <input
+              type="text"
+              name="fullName"
+              placeholder="Full name"
+              value={formData.fullName}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Address</label>
+            <input
+              type="text"
+              name="address"
+              placeholder="Your address..."
+              value={formData.address}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>City</label>
+            <input
+              type="text"
+              name="state"
+              placeholder="Your city..."
+              value={formData.state}
+              onChange={handleChange}
+            />
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label>State*</label>
-              <select
-                name="state"
-                value={formData.state}
+              <label>Country</label>
+              <input
+                type="text"
+                name="country"
+                placeholder="Your country..."
+                value={formData.country}
                 onChange={handleChange}
-                required
-                disabled={!formData.country}
-              >
-                <option value="">Select State</option>
-
-                {formData.country &&
-                  countryStateData[formData.country].map((state) => (
-                    <option key={state} value={state}>
-                      {state}
-                    </option>
-                  ))}
-              </select>
-              {errors.state && <span className="error">{errors.state}</span>}
+              />
             </div>
 
             <div className="form-group">
               <label>Postal Code</label>
-              <div className="input-wrapper">
               <input
                 type="text"
                 name="postalCode"
+                placeholder="Your postal code..."
                 value={formData.postalCode}
                 onChange={handleChange}
-                className={
-                  errors.postalCode
-                    ? "input-error"
-                    : formData.postalCode
-                    ? "input-valid"
-                    : ""
-                }
               />
-              {!errors.postalCode && formData.postalCode && (
-                <span className="checkmark">✓</span>
-              )}
-            </div>
             </div>
           </div>
-        </form>
+        </div>
 
         {/* RIGHT SIDE */}
         <div className="checkout-right">
@@ -319,11 +155,14 @@ export default function Checkout() {
 
           {cartItems.map((item, index) => (
             <div className="order-item" key={index}>
-              <div>
-                <p className="product-name">{item.name}</p>
-                <p className="product-meta">
-                  Size: {item.size || "-"} × {item.quantity}
-                </p>
+              <div className="order-left">
+                <img src={item.image} alt={item.name} />
+                <div>
+                  <p className="product-name">{item.name}</p>
+                  <p className="product-meta">
+                    {item.size} × {item.quantity}
+                  </p>
+                </div>
               </div>
               <p className="price">
                 ₦{(item.price * item.quantity).toLocaleString()}
@@ -332,24 +171,16 @@ export default function Checkout() {
           ))}
 
           <div className="order-summary">
-            <h3>Order Summary</h3>
-
-            <p>Subtotal: ₦{subtotal.toLocaleString()}</p>
-            <p>Shipping: ₦{shipping.toLocaleString()}</p>
-
+            <p>Subtotal <span>₦{subtotal.toLocaleString()}</span></p>
+            <p>Shipping <span>₦{shipping.toLocaleString()}</span></p>
             <hr />
-
-            <h4>Total: ₦{grandTotal.toLocaleString()}</h4>
+            <h3>Total <span>₦{grandTotal.toLocaleString()}</span></h3>
           </div>
 
-          <button
-            onClick={handleSubmit}
-            type="button"
+          <PaystackButton
+            {...paystackConfig}
             className="place-order-btn"
-            disabled={!isFormValid}
-          >
-            Place Order
-          </button>
+          />
         </div>
 
       </div>
