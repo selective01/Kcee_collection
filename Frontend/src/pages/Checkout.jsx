@@ -34,7 +34,7 @@ export default function Checkout() {
     try {
       // Verify payment on backend
       await fetch(
-        `http://localhost:5000/api/paystack/verify/${reference.reference}`
+        `${import.meta.env.VITE_API_URL}/api/paystack/verify/${reference.reference}`
       );
 
       clearCart();
