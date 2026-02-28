@@ -1,9 +1,11 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 
-export default function ProtectedAdmin({ children }) {
+export default function ProtectedAdmin() {
   const token = localStorage.getItem("adminToken");
 
-  if (!token) return <Navigate to="/admin/login" />;
+  if (!token) {
+    return <Navigate to="/admin/login" replace />;
+  }
 
-  return children;
+  return <Outlet />;
 }

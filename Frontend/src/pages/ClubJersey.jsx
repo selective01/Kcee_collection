@@ -19,7 +19,8 @@ import clubjersey10 from "../assets/My_Collections/ClubJersey/ClubJersey (10).jp
 
 const ClubJersey = () => {
   const { addToCart } = useCart();
-  const { isLoggedIn } = useAuth();
+  const { user } = useAuth();
+  const isLoggedIn = !!user;
   const location = useLocation();
   const [selectedSizes, setSelectedSizes] = useState({});
   const sizes = ["S", "M", "L", "XL"];
@@ -61,7 +62,7 @@ const ClubJersey = () => {
               <div className="card-info">
                 <h3>{product.name}</h3>
                 <p className="price">₦{product.price.toLocaleString()}</p>
-                <div className="size-selector">
+                <p className="description">{product.description}</p>                <div className="size-selector">
                   {sizes.map((size) => (
                     <span
                       key={size}

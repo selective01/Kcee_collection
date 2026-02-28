@@ -3,14 +3,14 @@ import { Link } from "react-router-dom";
 import { useHeroSearch } from "../hooks/useHeroSearch";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
-import { signOut } from "firebase/auth";
-import { auth } from "../firebase/firebaseConfig";
 import crown from "../assets/Icons/crown.png";
-import logout from "../assets/Icons/user1.png";
-import login from "../assets/Icons/user2.png";
+import logoutImg from "../assets/Icons/user1.png";
+import loginImg from "../assets/Icons/user2.png";
 import Toast from "./Toast";
 
 const Navbar = () => {
+  const { logout } = useAuth();
+
   const {
     searchWrapperRef,
     searchInputRef,
@@ -19,15 +19,9 @@ const Navbar = () => {
   } = useHeroSearch();
 
   const { totalItems, toastMessage } = useCart();
-  const { isLoggedIn } = useAuth();
+  const { user } = useAuth();
+  const isLoggedIn = !!user;
 
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
-  };
 
   return (
     <div className="nav">
@@ -89,13 +83,13 @@ const Navbar = () => {
         </Link>
 
         {isLoggedIn ? (
-          <a href="#" onClick={handleLogout} title="Logout">
-            <img src={logout} alt="Logout Icon" className="user-icon" />
+          <a href="#" onClick={logout} title="Logout">
+            <img src={logoutImg} alt="Logout Icon" className="user-icon" />
             <span className="menu-text">Logout</span>
           </a>
         ) : (
           <Link to="/auth">
-            <img src={login} alt="Login Icon" className="user-icon" />
+            <img src={loginImg} alt="Login Icon" className="user-icon" />
             <span className="menu-text">Login</span>
           </Link>
         )}

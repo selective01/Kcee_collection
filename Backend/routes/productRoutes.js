@@ -1,6 +1,6 @@
 import express from "express";
 import Product from "../models/Product.js";
-import { protect } from "../middleware/authMiddleware.js";
+import { protectAdmin } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -11,13 +11,13 @@ router.get("/", async (req, res) => {
 });
 
 /* CREATE PRODUCT */
-router.post("/", protect, async (req, res) => {
+router.post("/", protectAdmin, async (req, res) => {
   const product = await Product.create(req.body);
   res.json(product);
 });
 
 /* UPDATE PRODUCT */
-router.put("/:id", protect, async (req, res) => {
+router.put("/:id", protectAdmin, async (req, res) => {
   const product = await Product.findByIdAndUpdate(
     req.params.id,
     req.body,
@@ -27,7 +27,7 @@ router.put("/:id", protect, async (req, res) => {
 });
 
 /* DELETE PRODUCT */
-router.delete("/:id", protect, async (req, res) => {
+router.delete("/:id", protectAdmin, async (req, res) => {
   await Product.findByIdAndDelete(req.params.id);
   res.json({ message: "Deleted" });
 });

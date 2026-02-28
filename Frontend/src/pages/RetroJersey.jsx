@@ -19,7 +19,8 @@ import retrojersey10 from "../assets/My_Collections/RetroJersey/RetroJersey (10)
 
 const RetroJersey = () => {
   const { addToCart } = useCart();
-  const { isLoggedIn } = useAuth();
+  const { user } = useAuth();
+  const isLoggedIn = !!user;
   const location = useLocation();
   const [selectedSizes, setSelectedSizes] = useState({});
   const sizes = ["S", "M", "L", "XL"];
@@ -55,7 +56,7 @@ const RetroJersey = () => {
             <div className="card-info">
               <h3>{product.name}</h3>
               <p className="price">₦{product.price.toLocaleString()}</p>
-              <div className="size-selector">{sizes.map((size) => (<span key={size} className={`size-option ${selectedSizes[product.id] === size ? "active" : ""}`} onClick={() => handleSizeSelect(product.id, size)}>{size}</span>))}</div>
+                <p className="description">{product.description}</p>              <div className="size-selector">{sizes.map((size) => (<span key={size} className={`size-option ${selectedSizes[product.id] === size ? "active" : ""}`} onClick={() => handleSizeSelect(product.id, size)}>{size}</span>))}</div>
               {isLoggedIn ? (<button className="add-to-cart-btn" onClick={() => handleAddToCart(product)}>Add to Cart</button>) : (<p className="login-warning">Please <strong><Link to="/auth" state={{ from: location }}>login</Link></strong> to add to cart</p>)}
             </div>
           </div>

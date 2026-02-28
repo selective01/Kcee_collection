@@ -19,7 +19,8 @@ import watch10 from "../assets/My_Collections/Watches/Watch (10).jpg";
 
 const Watches = () => {
   const { addToCart } = useCart();
-  const { isLoggedIn } = useAuth();
+  const { user } = useAuth();
+  const isLoggedIn = !!user;
   const location = useLocation();
 
   const products = [
@@ -54,7 +55,7 @@ const Watches = () => {
               <div className="card-info">
                 <h3>{product.name}</h3>
                 <p className="price">₦{product.price.toLocaleString()}</p>
-
+                <p className="description">{product.description}</p>
                 {isLoggedIn ? (
                   <button
                     className="add-to-cart-btn"

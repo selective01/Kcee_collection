@@ -19,7 +19,8 @@ import shoes10 from "../assets/My_Collections/Shoes/Shoe (10).jpg";
 
 const Shoes = () => {
   const { addToCart } = useCart();
-  const { isLoggedIn } = useAuth();
+  const { user } = useAuth();
+  const isLoggedIn = !!user;
   const location = useLocation();
 
   // State for selected sizes
@@ -76,7 +77,7 @@ const Shoes = () => {
               <div className="card-info">
                 <h3>{product.name}</h3>
                 <p className="price">₦{product.price.toLocaleString()}</p>
-
+                <p className="description">{product.description}</p>
                 {/* Shoe Size Selector */}
                 <div className="size-selector">
                   {sizes.map((size) => (

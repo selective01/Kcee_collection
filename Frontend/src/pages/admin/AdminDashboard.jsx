@@ -1,31 +1,56 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import AdminLayout from "../../components/AdminLayout";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function AdminDashboard() {
   const [orders, setOrders] = useState([]);
   const [revenue, setRevenue] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // Declare function FIRST
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const token = localStorage.getItem("adminToken");
+      if (!token) throw new Error("No admin token found. Please login again.");
+
+      const res = await axios.get(`${BASE_URL}/api/orders`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = res.data || [];
+      setOrders(data);
+
+      const total = data.reduce((acc, order) => acc + (order.amount || 0), 0);
+      setRevenue(total);
+    } catch (err) {
+      console.error("Fetch orders error:", err);
+      setError(
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to load orders. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Now it's safe to call
   useEffect(() => {
     fetchOrders();
   }, []);
 
-  const fetchOrders = async () => {
-    const res = await axios.get(`${BASE_URL}/api/orders`);
-    setOrders(res.data);
-
-    const totalRevenue = res.data.reduce(
-      (acc, order) => acc + order.amount,
-      0
-    );
-
-    setRevenue(totalRevenue);
-  };
+  if (loading) return <div className="loading">Loading dashboard...</div>;
+  if (error) return <div className="error-message">Error: {error}</div>;
 
   return (
-    <AdminLayout>
+    <>
       <h1>Dashboard Overview</h1>
 
       <div className="admin-cards">
@@ -39,6 +64,6 @@ export default function AdminDashboard() {
           <p>₦{revenue.toLocaleString()}</p>
         </div>
       </div>
-    </AdminLayout>
+    </>
   );
 }

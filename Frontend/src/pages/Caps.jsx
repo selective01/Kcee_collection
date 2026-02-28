@@ -19,7 +19,8 @@ import cap10 from "../assets/My_Collections/Caps/Cap (10).jpg";
 
 const Caps = () => {
   const { addToCart } = useCart();
-  const { isLoggedIn } = useAuth();
+  const { user } = useAuth();
+  const isLoggedIn = !!user;
   const location = useLocation();
 
   const products = [
@@ -55,7 +56,7 @@ const Caps = () => {
               <div className="card-info">
                 <h3>{product.name}</h3>
                 <p className="price">₦{product.price.toLocaleString()}</p>
-
+                <p className="description">{product.description}</p>
                 {isLoggedIn ? (
                   <button
                     className="add-to-cart-btn"

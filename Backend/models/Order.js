@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema(
   {
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     customer: {
       fullName: String,
       email: String,
@@ -12,12 +13,10 @@ const orderSchema = new mongoose.Schema(
       postalCode: String,
     },
     items: Array,
-    amount: Number,
+    totalPrice: { type: Number, required: true }, // ✅ was `amount: Number`
     reference: String,
-    status: {
-      type: String,
-      default: "Paid",
-    },
+    status: { type: String, default: "Pending" },
+    paymentStatus: { type: String, default: "Pending" },
   },
   { timestamps: true }
 );

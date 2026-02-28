@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
-import { useAuth } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Breadcrumb from "./components/Breadcrumb";
+import AdminLayout from "./components/AdminLayout";
 
 import Home from "./pages/Home.jsx";
 import Cart from "./pages/Cart.jsx";
@@ -30,38 +30,28 @@ import Sneakers from "./pages/Sneakers.jsx";
 import TShirts from "./pages/TShirts.jsx";
 import Watches from "./pages/Watches.jsx";
 import PaymentSuccess from "./pages/PaymentSuccess.jsx";
+
+import AdminLogin from "./pages/admin/AdminLogin.jsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 import OrdersPage from "./pages/admin/OrdersPage.jsx";
+import AdminProducts from "./pages/admin/AdminProducts.jsx";
+import AdminUsers from "./pages/admin/AdminUsers.jsx";
+
 import ProtectedAdmin from "./components/ProtectedAdmin";
+
 import "./assets/css/style.css";
 
-// Pages where breadcrumb should appear
+// Pages where breadcrumb should appear (public only)
 const breadcrumbPages = [
-  "/bags",
-  "/caps",
-  "/cart",
-  "/club-jersey",
-  "/designer-shirts",
-  "/hoodies",
-  "/jeans",
-  "/jean-shorts",
-  "/joggers",
-  "/perfume",
-  "/checkout",
-  "/polo",
-  "/retro-jersey",
-  "/shoes",
-  "/shorts",
-  "/sleeveless",
-  "/slippers",
-  "/sneakers",
-  "/t-shirts",
-  "/watches",
+  "/bags", "/caps", "/cart", "/club-jersey", "/designer-shirts",
+  "/hoodies", "/jeans", "/jean-shorts", "/joggers", "/perfume",
+  "/checkout", "/polo", "/retro-jersey", "/shoes", "/shorts",
+  "/sleeveless", "/slippers", "/sneakers", "/t-shirts", "/watches",
 ];
 
-function Layout({ children }) {
+// Public Layout: Navbar + optional Breadcrumb + Footer
+function PublicLayout({ children }) {
   const location = useLocation();
-
   const showBreadcrumb = breadcrumbPages.includes(location.pathname);
 
   return (
@@ -74,7 +64,25 @@ function Layout({ children }) {
   );
 }
 
-function AppRoutes() {
+function AdminRoutes() {
+  return (
+    <Routes>
+      <Route path="login" element={<AdminLogin />} />
+
+      <Route element={<ProtectedAdmin />}>
+        <Route element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="orders" element={<OrdersPage />} />
+          <Route path="products" element={<AdminProducts />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="*" element={<div>404 - Admin page not found</div>} />
+        </Route>
+      </Route>
+    </Routes>
+  );
+}
+
+function App() {
   const location = useLocation();
 
   useEffect(() => {
@@ -82,60 +90,38 @@ function AppRoutes() {
   }, [location.pathname]);
 
   return (
-    <Layout>
+    <CartProvider>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/bags" element={<Bags />} />
-        <Route path="/caps" element={<Caps />} />
-        <Route path="/club-jersey" element={<ClubJersey />} />
-        <Route path="/designer-shirts" element={<DesignerShirts />} />
-        <Route path="/hoodies" element={<Hoodies />} />
-        <Route path="/jeans" element={<Jeans />} />
-        <Route path="/jean-shorts" element={<JeanShorts />} />
-        <Route path="/joggers" element={<Joggers />} />
-        <Route path="/perfume" element={<Perfume />} />
-        <Route path="/polo" element={<Polo />} />
-        <Route path="/retro-jersey" element={<RetroJersey />} />
-        <Route path="/shoes" element={<Shoes />} />
-        <Route path="/shorts" element={<Shorts />} />
-        <Route path="/sleeveless" element={<Sleeveless />} />
-        <Route path="/slippers" element={<Slippers />} />
-        <Route path="/sneakers" element={<Sneakers />} />
-        <Route path="/t-shirts" element={<TShirts />} />
-        <Route path="/watches" element={<Watches />} />
-        <Route path="/payment-success" element={<PaymentSuccess />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/orders" element={<OrdersPage />} />
-        <Route
-          path="/admin"
-          element={
-            <ProtectedAdmin>
-              <AdminDashboard />
-            </ProtectedAdmin>
-          }
-        />
+        {/* Public routes */}
+        <Route path="/" element={<PublicLayout><Home /></PublicLayout>} />
+        <Route path="/auth" element={<PublicLayout><Auth /></PublicLayout>} />
+        <Route path="/cart" element={<PublicLayout><Cart /></PublicLayout>} />
+        <Route path="/checkout" element={<PublicLayout><Checkout /></PublicLayout>} />
+        <Route path="/bags" element={<PublicLayout><Bags /></PublicLayout>} />
+        <Route path="/caps" element={<PublicLayout><Caps /></PublicLayout>} />
+        <Route path="/club-jersey" element={<PublicLayout><ClubJersey /></PublicLayout>} />
+        <Route path="/designer-shirts" element={<PublicLayout><DesignerShirts /></PublicLayout>} />
+        <Route path="/hoodies" element={<PublicLayout><Hoodies /></PublicLayout>} />
+        <Route path="/jeans" element={<PublicLayout><Jeans /></PublicLayout>} />
+        <Route path="/jean-shorts" element={<PublicLayout><JeanShorts /></PublicLayout>} />
+        <Route path="/joggers" element={<PublicLayout><Joggers /></PublicLayout>} />
+        <Route path="/perfume" element={<PublicLayout><Perfume /></PublicLayout>} />
+        <Route path="/polo" element={<PublicLayout><Polo /></PublicLayout>} />
+        <Route path="/retro-jersey" element={<PublicLayout><RetroJersey /></PublicLayout>} />
+        <Route path="/shoes" element={<PublicLayout><Shoes /></PublicLayout>} />
+        <Route path="/shorts" element={<PublicLayout><Shorts /></PublicLayout>} />
+        <Route path="/sleeveless" element={<PublicLayout><Sleeveless /></PublicLayout>} />
+        <Route path="/slippers" element={<PublicLayout><Slippers /></PublicLayout>} />
+        <Route path="/sneakers" element={<PublicLayout><Sneakers /></PublicLayout>} />
+        <Route path="/t-shirts" element={<PublicLayout><TShirts /></PublicLayout>} />
+        <Route path="/watches" element={<PublicLayout><Watches /></PublicLayout>} />
+        <Route path="/payment-success" element={<PublicLayout><PaymentSuccess /></PublicLayout>} />
+
+        {/* All admin routes under /admin/* */}
+        <Route path="/admin/*" element={<AdminRoutes />} />
       </Routes>
-    </Layout>
-  );
-}
-
-function AppWrapper() {
-  const { user, loading } = useAuth();
-
-  if (loading) return null; // or a spinner
-
-  return (
-    <CartProvider currentUser={user}>
-      <AppRoutes />
     </CartProvider>
   );
-}
-
-function App() {
-  return <AppWrapper />;
 }
 
 export default App;

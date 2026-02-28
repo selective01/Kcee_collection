@@ -6,95 +6,42 @@ import connectDB from "./config/db.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
+import adminUserRoutes from "./routes/adminUserRoutes.js";
+import payments from "./routes/payments.js";
 import dns from "node:dns/promises";
 
 dotenv.config();
-
-dns.setServers(['8.8.8.8', '8.8.4.4']);
-
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
 connectDB();
 
 const app = express();
 
-// Recommended production-safe CORS setup
-app.use(cors({
-  origin: [
-    'http://localhost:3000',           // your local dev frontend
-    'http://localhost:5173',           // common Vite port
-    'https://kcee-collection.vercel.app',   
-  ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'], // add any custom headers you use
-  credentials: true,   // important if you use cookies or auth headers with credentials
-}));
-
-// Handle preflight OPTIONS requests explicitly (sometimes needed)
-app.options('*', cors());
-
+// 🔥 REQUIRED
 app.use(express.json());
+
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://kcee-collection.vercel.app",
+    ],
+    credentials: true,
+  })
+);
+
+// Routes
+app.use("/api/auth", userRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/admin", adminUserRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/paystack", payments);
 
 // Root test
 app.get("/", (req, res) => {
   res.send("Backend is running");
 });
-
-/* ===============================
-   PAYSTACK INITIALIZE PAYMENT
-================================= */
-
-app.post("/api/paystack/initialize", async (req, res) => {
-  try {
-    const { email, amount, metadata } = req.body;
-
-    const response = await axios.post(
-      "https://api.paystack.co/transaction/initialize",
-      {
-        email,
-        amount: amount * 100, // Paystack uses kobo
-        metadata,
-        callback_url: "http://localhost:5173/payment-success",
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    res.json(response.data);
-  } catch (error) {
-    console.error(error.response?.data || error.message);
-    res.status(500).json({ error: "Payment initialization failed" });
-  }
-});
-
-app.get("/api/paystack/verify/:reference", async (req, res) => {
-  try {
-    const { reference } = req.params;
-
-    const response = await axios.get(
-      `https://api.paystack.co/transaction/verify/${reference}`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
-        },
-      }
-    );
-
-    res.json(response.data);
-
-  } catch (error) {
-    console.error(error.response?.data || error.message);
-    res.status(500).json({ error: "Verification failed" });
-  }
-});
-
-app.use("/api/admin", adminRoutes);
-app.use("/api/products", productRoutes);
-
-
 
 // API test
 app.get("/api/test", (req, res) => {

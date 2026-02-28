@@ -21,7 +21,8 @@ import hoodie10 from "../assets/My_Collections/Hoodie/Hoodie (10).jpg";
 
 const Hoodies = () => {
   const { addToCart } = useCart();
-  const { isLoggedIn } = useAuth();
+  const { user } = useAuth();
+  const isLoggedIn = !!user;
   const location = useLocation();
 
   const [selectedSizes, setSelectedSizes] = useState({});

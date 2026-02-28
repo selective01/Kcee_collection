@@ -21,13 +21,14 @@ router.get("/verify/:reference", async (req, res) => {
     const data = response.data.data;
 
     if (data.status === "success") {
-      // Save order to database
       const order = new Order({
-        email: data.customer.email,
+        user: data.metadata.userId, // Assume sent in metadata during init
+        customer: data.metadata.customer, // Or pull from req.body if needed
+        items: data.metadata.items,
         amount: data.amount / 100,
         reference: data.reference,
-        metadata: data.metadata,
-        status: "paid",
+        status: "Paid",
+        paymentStatus: "Paid",
       });
 
       await order.save();

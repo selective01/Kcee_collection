@@ -19,7 +19,8 @@ import tshirts10 from "../assets/My_Collections/Tshirts/Tshirt (10).jpg";
 
 const Tshirts = () => {
   const { addToCart } = useCart();
-  const { isLoggedIn } = useAuth();
+  const { user } = useAuth();
+  const isLoggedIn = !!user;
   const location = useLocation();
   const [selectedSizes, setSelectedSizes] = useState({});
   const sizes = ["S", "M", "L"]; // optional sizing for watches
@@ -61,7 +62,7 @@ const Tshirts = () => {
               <div className="card-info">
                 <h3>{product.name}</h3>
                 <p className="price">₦{product.price.toLocaleString()}</p>
-                <div className="size-selector">
+                <p className="description">{product.description}</p>                <div className="size-selector">
                   {sizes.map((size) => (
                     <span
                       key={size}

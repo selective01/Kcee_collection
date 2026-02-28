@@ -1,0 +1,12 @@
+.admin-sidebar nav a {
+  display: block;
+  padding: 10px 15px;
+  text-decoration: none;
+  color: #333;
+}
+
+.admin-sidebar nav a.active-link {
+  background-color: #1d4ed8; /* blue background */
+  color: #fff; /* white text */
+  border-radius: 5px;
+}
