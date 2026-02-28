@@ -30,6 +30,7 @@ import Sneakers from "./pages/Sneakers.jsx";
 import TShirts from "./pages/TShirts.jsx";
 import Watches from "./pages/Watches.jsx";
 import PaymentSuccess from "./pages/PaymentSuccess.jsx";
+import OrderSuccess from "./pages/OrderSuccess.jsx";
 
 import AdminLogin from "./pages/admin/AdminLogin.jsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
@@ -116,6 +117,7 @@ function App() {
         <Route path="/t-shirts" element={<PublicLayout><TShirts /></PublicLayout>} />
         <Route path="/watches" element={<PublicLayout><Watches /></PublicLayout>} />
         <Route path="/payment-success" element={<PublicLayout><PaymentSuccess /></PublicLayout>} />
+        <Route path="/order-success" element={<PublicLayout><OrderSuccess /></PublicLayout>} />
 
         {/* All admin routes under /admin/* */}
         <Route path="/admin/*" element={<AdminRoutes />} />
