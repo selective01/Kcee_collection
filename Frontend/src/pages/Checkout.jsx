@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCart } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
 import { PaystackButton } from "react-paystack";
@@ -7,7 +7,7 @@ import "../assets/css/checkout.css";
 
 export default function Checkout() {
   const { cartItems, subtotal, clearCart } = useCart();
-  const { token } = useAuth(); // ✅ needed for authenticated order request
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -22,6 +22,14 @@ export default function Checkout() {
 
   const [shipping] = useState(0);
   const grandTotal = subtotal + shipping;
+
+  // ✅ Redirect to login if not logged in
+  useEffect(() => {
+    if (!user) {
+      alert("Please log in to checkout.");
+      navigate("/auth");
+    }
+  }, [user]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -49,7 +57,10 @@ export default function Checkout() {
         `${import.meta.env.VITE_API_URL}/api/paystack/verify/${reference.reference}`
       );
 
-      // 2. Save order — this was missing before
+      // 2. ✅ Read token directly from localStorage — reliable
+      const token = localStorage.getItem("token");
+
+      // 3. Save order
       const orderRes = await fetch(`${import.meta.env.VITE_API_URL}/api/orders`, {
         method: "POST",
         headers: {
@@ -80,7 +91,7 @@ export default function Checkout() {
       }
 
       clearCart();
-      navigate("/order-success"); // ✅ redirect to success page instead of /cart
+      navigate("/order-success");
     } catch (error) {
       console.error("handleSuccess error:", error);
     }
@@ -178,7 +189,6 @@ export default function Checkout() {
             <h3>Total <span>₦{grandTotal.toLocaleString()}</span></h3>
           </div>
 
-          {/* ✅ Validate before opening Paystack */}
           <PaystackButton
             {...paystackConfig}
             className="place-order-btn"
