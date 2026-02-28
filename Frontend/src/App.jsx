@@ -37,6 +37,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 import OrdersPage from "./pages/admin/OrdersPage.jsx";
 import AdminProducts from "./pages/admin/AdminProducts.jsx";
 import AdminUsers from "./pages/admin/AdminUsers.jsx";
+import AdminCategories from "./pages/admin/AdminCategories.jsx";
 
 import ProtectedAdmin from "./components/ProtectedAdmin";
 
@@ -77,6 +78,7 @@ function AdminRoutes() {
           <Route path="products" element={<AdminProducts />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="*" element={<div>404 - Admin page not found</div>} />
+          <Route path="categories" element={<AdminCategories />} />
         </Route>
       </Route>
     </Routes>

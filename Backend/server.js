@@ -9,6 +9,7 @@ import productRoutes from "./routes/productRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import adminUserRoutes from "./routes/adminUserRoutes.js";
 import payments from "./routes/payments.js";
+import categoryRoutes from "./routes/categoryRoutes.js";
 import dns from "node:dns/promises";
 
 dotenv.config();
@@ -37,6 +38,7 @@ app.use("/api/admin", adminUserRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/paystack", payments);
+app.use("/api/categories", categoryRoutes);
 
 // Root test
 app.get("/", (req, res) => {

@@ -54,6 +54,15 @@ export default function AdminSidebar() {
         </svg>
       ),
     },
+    {
+      to: "/admin/categories",
+      label: "Categories",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M21 6.5l-4-4H7L3 6.5l3 2.25V20h12V8.75L21 6.5zM9 4h6l2.5 2.5-1.75 1.3A3 3 0 0112 9a3 3 0 01-3.75-1.2L6.5 6.5 9 4zm3 7a1 1 0 110 2 1 1 0 010-2z"/>
+        </svg>
+      ),
+    },
   ];
 
   return (
