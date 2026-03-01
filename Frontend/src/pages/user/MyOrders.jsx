@@ -17,7 +17,11 @@ export default function MyOrders() {
   useEffect(() => {
     if (loading) return;
     if (!user) { navigate("/auth"); return; }
+
     fetchOrders();
+
+    const interval = setInterval(fetchOrders, 30000);
+    return () => clearInterval(interval);
   }, [user, loading]);
 
   const fetchOrders = async () => {

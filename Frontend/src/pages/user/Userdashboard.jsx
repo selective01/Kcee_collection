@@ -15,9 +15,13 @@ export default function UserDashboard() {
   useEffect(() => {
     if (loading) return;
     if (!user) { navigate("/auth"); return; }
-    fetchOrders();
-  }, [user, loading]);
 
+    fetchOrders();
+
+    const interval = setInterval(fetchOrders, 30000);
+    return () => clearInterval(interval);
+  }, [user, loading]);
+  
   const fetchOrders = async () => {
     try {
       const token = localStorage.getItem("token");
