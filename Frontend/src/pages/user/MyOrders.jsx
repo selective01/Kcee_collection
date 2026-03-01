@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import axios from "axios";
-import "../../assets/css/myOrders.css";
+import "../../assets/css/myorders.css";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
