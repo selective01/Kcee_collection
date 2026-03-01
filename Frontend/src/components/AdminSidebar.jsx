@@ -72,6 +72,15 @@ export default function AdminSidebar() {
         </svg>
       ),
     },
+    {
+      to: "/admin/sales-report",
+      label: "Sales Report",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M3 3v18h18M9 17V9m4 8v-5m4 5V5"/>
+        </svg>
+      ),
+    },
   ];
 
   return (

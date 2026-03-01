@@ -16,7 +16,7 @@ const toBase64 = (file) =>
 export default function AdminProducts() {
   const { user } = useAuth();
   const [products, setProducts] = useState([]);
-  const [formData, setFormData] = useState({ name: "", price: 0, description: "", image: "" });
+  const [formData, setFormData] = useState({ name: "", price: 0, cost: 0, description: "", image: "" });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -132,6 +132,12 @@ export default function AdminProducts() {
                   <input className="ap-input" type="number" placeholder="e.g. 5000"
                     value={formData.price} required
                     onChange={(e) => setFormData({ ...formData, price: +e.target.value })} />
+                </div>
+                <div>
+                <div className="field-label">Cost Price (₦)</div>
+                  <input className="ap-input" type="number" placeholder="e.g. 3000"
+                    value={formData.cost}
+                    onChange={(e) => setFormData({ ...formData, cost: +e.target.value })} />
                 </div>
                 <div>
                   <div className="field-label">Description</div>
