@@ -56,10 +56,6 @@ iframe[name="paystack-iframe"] {
   scrollbar-width: none;
 }
 
-.checkout-section::-webkit-scrollbar {
-  display: none; /* ✅ hides scrollbar in Chrome/Edge/Safari */
-}
-
 .checkout-container {
   display: flex;
   gap: 40px;
@@ -297,7 +293,6 @@ iframe[name="paystack-iframe"] {
   }
 }
 
-/* Stack the layout on small phones (<=480px) so content is vertical */
 @media (max-width: 480px) {
   .checkout-container {
     flex-direction: column;
@@ -308,6 +303,8 @@ iframe[name="paystack-iframe"] {
     width: 100%;
     position: relative;
     top: 0;
+    max-height: none;  /* ✅ remove height restriction */
+    overflow-y: visible;  /* ✅ let it expand fully */
   }
 
   .checkout-left {
