@@ -31,9 +31,9 @@ import TShirts from "./pages/TShirts.jsx";
 import Watches from "./pages/Watches.jsx";
 import PaymentSuccess from "./pages/PaymentSuccess.jsx";
 import OrderSuccess from "./pages/OrderSuccess.jsx";
-import UserDashboard from "./pages/user/UserDashboard";
-import MyOrders from "./pages/user/MyOrders";
-import ProfileSettings from "./pages/user/ProfileSettings";
+import UserDashboard from "./pages/user/UserDashboard.jsx";
+import MyOrders from "./pages/user/MyOrders.jsx";
+import ProfileSettings from "./pages/user/ProfileSettings.jsx";
 
 import AdminLogin from "./pages/admin/AdminLogin.jsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
@@ -123,7 +123,7 @@ function App() {
         <Route path="/watches" element={<PublicLayout><Watches /></PublicLayout>} />
         <Route path="/payment-success" element={<PublicLayout><PaymentSuccess /></PublicLayout>} />
         <Route path="/order-success" element={<PublicLayout><OrderSuccess /></PublicLayout>} />
-        <Route path="/dashboard" element={<UserDashboard />} />
+        <Route path="/dashboard" element={<Userdashboard />} />
         <Route path="/orders" element={<MyOrders />} />
         <Route path="/profile" element={<ProfileSettings />} />
 
