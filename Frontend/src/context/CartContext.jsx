@@ -34,6 +34,10 @@ export const CartProvider = ({ children }) => {
 
       return [...prev, { ...product, quantity: 1 }];
     });
+
+    // ✅ Show toast
+    setToastMessage(`${product.name} added to cart!`);
+    setTimeout(() => setToastMessage(""), 3000);
   };
 
   // Remove item

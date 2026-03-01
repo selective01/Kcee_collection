@@ -26,8 +26,8 @@
 }
 
 .product-page {
-  margin-top: 10px;
   padding-top: 30px;
+  margin-top: 0 !important;
 }
 
 .categories-grid {
@@ -162,6 +162,14 @@
   background: var(--design-active-color);
 }
 
+.login-warning a {
+  text-decoration: none;
+  color: var(--design-color);
+}
+
+.login-warning a:hover {
+  color: var(--design-active-color);
+}
 
 @media (max-width: 1024px) {
   .categories-grid {

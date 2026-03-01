@@ -14,12 +14,26 @@ router.get("/", protectAdmin, async (req, res) => {
 
 /* =========================
    USER: Get My Orders
+   Supports both /my and /myorders
 ========================= */
-router.get("/myorders", protectUser, async (req, res) => {
-  const orders = await Order.find({ user: req.user._id })
-    .sort({ createdAt: -1 });
+router.get("/my", protectUser, async (req, res) => {
+  try {
+    console.log("Fetching orders for user:", req.user._id);
+    const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
+    console.log("Orders found:", orders.length);
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch orders" });
+  }
+});
 
-  res.json(orders);
+router.get("/myorders", protectUser, async (req, res) => {
+  try {
+    const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch orders" });
+  }
 });
 
 /* =========================
@@ -27,15 +41,10 @@ router.get("/myorders", protectUser, async (req, res) => {
 ========================= */
 router.put("/:id", protectAdmin, async (req, res) => {
   const { status } = req.body;
-
   const order = await Order.findById(req.params.id);
-
-  if (!order)
-    return res.status(404).json({ message: "Order not found" });
-
+  if (!order) return res.status(404).json({ message: "Order not found" });
   order.status = status;
   await order.save();
-
   res.json(order);
 });
 
@@ -45,7 +54,7 @@ router.put("/:id", protectAdmin, async (req, res) => {
 router.post("/", protectUser, async (req, res) => {
   try {
     const order = new Order({
-      user: req.user._id, // NEVER trust req.body.user
+      user: req.user._id,
       items: req.body.items,
       totalPrice: req.body.totalPrice,
       paymentStatus: req.body.paymentStatus || "Pending",
@@ -53,9 +62,7 @@ router.post("/", protectUser, async (req, res) => {
       customer: req.body.customer,
       reference: req.body.reference,
     });
-
     const createdOrder = await order.save();
-
     res.status(201).json(createdOrder);
   } catch (error) {
     console.error("Order error:", error);

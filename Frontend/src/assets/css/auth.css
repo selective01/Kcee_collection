@@ -25,13 +25,11 @@
 }
 
 body {
-  padding-top: 0 !important; /* override global navbar padding since Auth has no navbar */
   background: linear-gradient(135deg, var(--background-color), #eef3e8);
 }
 
 .auth-wrapper {
   width: 100%;
-  min-height: 100vh;
   padding: 10px;
   display: flex;
   align-items: center;
@@ -42,7 +40,7 @@ body {
   position: relative;
   width: 100%;
   max-width: 750px;
-  height: 500px;
+  height: 450px;
   background: var(--white-color);
   border-radius: 22px;
   overflow: hidden;

@@ -5,7 +5,6 @@ import "../../assets/css/adminProducts.css"
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
-// Convert file to base64
 const toBase64 = (file) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -27,6 +26,11 @@ export default function AdminProducts() {
   const [editImageFile, setEditImageFile] = useState(null);
   const [editImagePreview, setEditImagePreview] = useState(null);
 
+  // Search & pagination
+  const [search, setSearch] = useState("");
+  const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+
   useEffect(() => { if (user) fetchProducts(); }, [user]);
 
   const fetchProducts = async () => {
@@ -43,13 +47,8 @@ export default function AdminProducts() {
     const file = e.target.files[0];
     if (!file) return;
     const preview = URL.createObjectURL(file);
-    if (isEdit) {
-      setEditImageFile(file);
-      setEditImagePreview(preview);
-    } else {
-      setImageFile(file);
-      setImagePreview(preview);
-    }
+    if (isEdit) { setEditImageFile(file); setEditImagePreview(preview); }
+    else { setImageFile(file); setImagePreview(preview); }
   };
 
   const handleCreate = async (e) => {
@@ -60,8 +59,7 @@ export default function AdminProducts() {
       if (imageFile) imageData = await toBase64(imageFile);
       await axios.post(`${BASE_URL}/api/products`, { ...formData, image: imageData });
       setFormData({ name: "", price: 0, description: "", image: "" });
-      setImageFile(null);
-      setImagePreview(null);
+      setImageFile(null); setImagePreview(null);
       fetchProducts();
     } catch (err) {
       setError(err.response?.data?.msg || "Failed to create product");
@@ -93,6 +91,19 @@ export default function AdminProducts() {
       setError(err.response?.data?.msg || "Failed to update");
     } finally { setLoading(false); }
   };
+
+  // Filter + paginate
+  const filtered = products.filter((p) =>
+    p.name.toLowerCase().includes(search.toLowerCase()) ||
+    (p.description || "").toLowerCase().includes(search.toLowerCase()) ||
+    (p.category || "").toLowerCase().includes(search.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filtered.length / entriesPerPage);
+  const paginated = filtered.slice((currentPage - 1) * entriesPerPage, currentPage * entriesPerPage);
+
+  const handleSearchChange = (e) => { setSearch(e.target.value); setCurrentPage(1); };
+  const handleEntriesChange = (e) => { setEntriesPerPage(+e.target.value); setCurrentPage(1); };
 
   return (
     <>
@@ -131,12 +142,8 @@ export default function AdminProducts() {
                 <div>
                   <div className="field-label">Product Image</div>
                   <div className="file-upload-wrapper">
-                    <input
-                      type="file" accept="image/*"
-                      className="file-upload-input"
-                      id="product-image-upload"
-                      onChange={(e) => handleImageChange(e, false)}
-                    />
+                    <input type="file" accept="image/*" className="file-upload-input"
+                      id="product-image-upload" onChange={(e) => handleImageChange(e, false)} />
                     <label htmlFor="product-image-upload" className="file-upload-label">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
@@ -150,9 +157,7 @@ export default function AdminProducts() {
                         <img src={imagePreview} className="file-preview" alt="preview" />
                         <span className="file-preview-name">{imageFile?.name}</span>
                         <button type="button" className="file-remove"
-                          onClick={() => { setImageFile(null); setImagePreview(null); }}>
-                          ✕ Remove
-                        </button>
+                          onClick={() => { setImageFile(null); setImagePreview(null); }}>✕ Remove</button>
                       </div>
                     )}
                   </div>
@@ -164,12 +169,38 @@ export default function AdminProducts() {
             </form>
           </div>
 
+          {/* Toolbar */}
+          <div className="ap-toolbar">
+            <div className="ap-entries">
+              <span>Show</span>
+              <select value={entriesPerPage} onChange={handleEntriesChange} className="ap-select">
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </select>
+              <span>entries</span>
+            </div>
+            <div className="ap-search-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" width="15" height="15">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input
+                className="ap-search-input"
+                type="text"
+                placeholder="Search products..."
+                value={search}
+                onChange={handleSearchChange}
+              />
+            </div>
+          </div>
+
           {/* Products Table */}
           <div className="ap-card">
             {loading && products.length === 0 ? (
               <div className="ap-empty">Loading...</div>
-            ) : products.length === 0 ? (
-              <div className="ap-empty">No products found.</div>
+            ) : paginated.length === 0 ? (
+              <div className="ap-empty">{search ? `No products matching "${search}"` : "No products found."}</div>
             ) : (
               <table className="ap-table">
                 <thead>
@@ -179,7 +210,7 @@ export default function AdminProducts() {
                   </tr>
                 </thead>
                 <tbody>
-                  {products.map((p) => (
+                  {paginated.map((p) => (
                     <tr key={p._id}>
                       <td>
                         {p.image
@@ -206,6 +237,34 @@ export default function AdminProducts() {
               </table>
             )}
           </div>
+
+          {/* Pagination */}
+          {filtered.length > entriesPerPage && (
+            <div className="ap-pagination">
+              <span className="ap-page-info">
+                Showing {((currentPage - 1) * entriesPerPage) + 1}–{Math.min(currentPage * entriesPerPage, filtered.length)} of {filtered.length} products
+              </span>
+              <div className="ap-page-btns">
+                <button className="ap-page-btn" onClick={() => setCurrentPage(p => Math.max(p - 1, 1))} disabled={currentPage === 1}>
+                  ← Prev
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                  .reduce((acc, p, i, arr) => {
+                    if (i > 0 && p - arr[i - 1] > 1) acc.push("...");
+                    acc.push(p);
+                    return acc;
+                  }, [])
+                  .map((p, i) =>
+                    p === "..." ? <span key={i} className="ap-page-ellipsis">…</span> :
+                    <button key={p} className={`ap-page-btn ${currentPage === p ? "active" : ""}`} onClick={() => setCurrentPage(p)}>{p}</button>
+                  )}
+                <button className="ap-page-btn" onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))} disabled={currentPage === totalPages}>
+                  Next →
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -243,12 +302,8 @@ export default function AdminProducts() {
                       <span className="file-preview-name" style={{ color: "#6b7280" }}>Current image</span>
                     </div>
                   )}
-                  <input
-                    type="file" accept="image/*"
-                    className="file-upload-input"
-                    id="edit-image-upload"
-                    onChange={(e) => handleImageChange(e, true)}
-                  />
+                  <input type="file" accept="image/*" className="file-upload-input"
+                    id="edit-image-upload" onChange={(e) => handleImageChange(e, true)} />
                   <label htmlFor="edit-image-upload" className="file-upload-label">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                       <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>

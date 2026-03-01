@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
 import { useCart } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
-import { PaystackButton } from "react-paystack";
 import { useAuth } from "../context/AuthContext";
 import "../assets/css/checkout.css";
 
 export default function Checkout() {
   const { cartItems, subtotal, clearCart } = useCart();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -21,21 +20,21 @@ export default function Checkout() {
   });
 
   const [shipping] = useState(0);
+  const [orderLoading, setOrderLoading] = useState(false);
   const grandTotal = subtotal + shipping;
 
-  // ✅ Redirect to login if not logged in
   useEffect(() => {
+    if (loading) return;
     if (!user) {
       alert("Please log in to checkout.");
       navigate("/auth");
     }
-  }, [user]);
+  }, [user, loading]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // ✅ Validate before Paystack opens
   const isFormValid = () => {
     const { fullName, email, phone, address, country, state } = formData;
     if (!fullName || !email || !phone || !address || !country || !state) {
@@ -49,18 +48,17 @@ export default function Checkout() {
     return true;
   };
 
-  // ✅ Save order to DB after successful payment
   const handleSuccess = async (reference) => {
     try {
-      // 1. Verify payment
-      await fetch(
-        `${import.meta.env.VITE_API_URL}/api/paystack/verify/${reference.reference}`
-      );
+      setOrderLoading(true);
+      console.log("1. handleSuccess called with ref:", reference);
 
-      // 2. ✅ Read token directly from localStorage — reliable
+      await fetch(`${import.meta.env.VITE_API_URL}/api/paystack/verify/${reference}`);
+      console.log("2. Verify done");
+
       const token = localStorage.getItem("token");
+      console.log("3. Token:", token ? "found" : "missing");
 
-      // 3. Save order
       const orderRes = await fetch(`${import.meta.env.VITE_API_URL}/api/orders`, {
         method: "POST",
         headers: {
@@ -78,38 +76,61 @@ export default function Checkout() {
           })),
           totalPrice: grandTotal,
           paymentStatus: "Paid",
-          reference: reference.reference,
+          reference,
           customer: formData,
         }),
       });
 
+      console.log("4. Order response status:", orderRes.status);
+
       if (!orderRes.ok) {
         const err = await orderRes.json();
-        console.error("Order save failed:", err);
+        console.error("5. Order save failed:", err);
         alert("Payment received but order could not be saved. Please contact support.");
         return;
       }
 
+      console.log("6. Order saved, navigating...");
       clearCart();
+      console.log("7. About to navigate to /order-success");
       navigate("/order-success");
     } catch (error) {
       console.error("handleSuccess error:", error);
+    } finally {
+      setOrderLoading(false);
     }
   };
 
-  const paystackConfig = {
+  const handlePayment = () => {
+  console.log("handlePayment called");
+  if (!isFormValid()) return;
+
+  if (!window.PaystackPop) {
+    alert("Payment system is still loading. Please try again.");
+    return;
+  }
+
+  const handler = new window.PaystackPop();
+  handler.newTransaction({
+    key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
     email: formData.email,
     amount: grandTotal * 100,
-    publicKey: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
+    currency: "NGN",
+    ref: `T${Date.now()}`,
     metadata: {
       fullName: formData.fullName,
       phone: formData.phone,
       address: formData.address,
     },
-    text: "Place Order",
-    onSuccess: handleSuccess,
-    onClose: () => alert("Payment cancelled"),
-  };
+    onSuccess: (transaction) => {
+      const ref = transaction.reference || transaction.trxref;
+      handleSuccess(ref);
+    },
+    onCancel: () => {
+      alert("Payment cancelled.");
+    },
+  });
+};
 
   return (
     <section className="checkout-section">
@@ -189,13 +210,13 @@ export default function Checkout() {
             <h3>Total <span>₦{grandTotal.toLocaleString()}</span></h3>
           </div>
 
-          <PaystackButton
-            {...paystackConfig}
+          <button
             className="place-order-btn"
-            onClick={(e) => {
-              if (!isFormValid()) e.preventDefault();
-            }}
-          />
+            onClick={handlePayment}
+            disabled={orderLoading}
+          >
+            {orderLoading ? "Processing..." : "Place Order"}
+          </button>
         </div>
 
       </div>

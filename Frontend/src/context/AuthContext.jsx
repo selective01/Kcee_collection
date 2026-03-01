@@ -51,9 +51,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   // ✅ Register
-  const register = async (name, email, password) => {
+  const register = async (name, email, password, phone = "") => {
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/register`, { name, email, password });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/register`, { 
+        name, email, password, phone 
+      });
       if (!res.data.token) throw new Error("No token returned");
 
       const { token, user } = res.data;

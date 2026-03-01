@@ -12,6 +12,7 @@ function Auth() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [phone, setPhone] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -34,7 +35,7 @@ function Auth() {
     }
 
     try {
-      await register(fullName, email, password);
+      await register(fullName, email, password, phone);
       const from = location.state?.from || "/";
       navigate(from, { replace: true });
     } catch (err) {
@@ -137,6 +138,13 @@ function Auth() {
               required
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
+            />
+            
+            <input
+              type="text"
+              placeholder="Phone Number"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
             />
 
             <input

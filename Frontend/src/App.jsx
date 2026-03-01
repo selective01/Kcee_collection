@@ -31,6 +31,9 @@ import TShirts from "./pages/TShirts.jsx";
 import Watches from "./pages/Watches.jsx";
 import PaymentSuccess from "./pages/PaymentSuccess.jsx";
 import OrderSuccess from "./pages/OrderSuccess.jsx";
+import UserDashboard from "./pages/user/UserDashboard";
+import MyOrders from "./pages/user/MyOrders";
+import ProfileSettings from "./pages/user/ProfileSettings";
 
 import AdminLogin from "./pages/admin/AdminLogin.jsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
@@ -60,7 +63,7 @@ function PublicLayout({ children }) {
     <>
       <Navbar />
       {showBreadcrumb && <Breadcrumb />}
-      <main>{children}</main>
+      <main className="page-content">{children}</main>
       <Footer />
     </>
   );
@@ -120,6 +123,9 @@ function App() {
         <Route path="/watches" element={<PublicLayout><Watches /></PublicLayout>} />
         <Route path="/payment-success" element={<PublicLayout><PaymentSuccess /></PublicLayout>} />
         <Route path="/order-success" element={<PublicLayout><OrderSuccess /></PublicLayout>} />
+        <Route path="/dashboard" element={<UserDashboard />} />
+        <Route path="/orders" element={<MyOrders />} />
+        <Route path="/profile" element={<ProfileSettings />} />
 
         {/* All admin routes under /admin/* */}
         <Route path="/admin/*" element={<AdminRoutes />} />

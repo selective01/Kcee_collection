@@ -5,14 +5,14 @@ export default function OrderSuccess() {
 
   return (
     <div style={{ textAlign: "center", padding: "80px 20px" }}>
-      <h1 style={{ color: "green", fontSize: "2rem" }}>🎉 Order Placed Successfully!</h1>
+      <h1 style={{ color: "green", fontSize: "2rem" }}>Order Placed Successfully!</h1>
       <p style={{ margin: "20px 0", fontSize: "1.1rem" }}>
         Thank you for your purchase. Your order has been received and is being processed.
       </p>
       <button
         onClick={() => navigate("/")}
         style={{
-          backgroundColor: "#1a1a1a",
+          backgroundColor: "#3A9D23",
           color: "#fff",
           padding: "12px 30px",
           border: "none",
