@@ -93,7 +93,6 @@ body {
 
 .password-container {
   position: relative;
-  margin-bottom: 12px;
   width: 100%;
 }
 
@@ -363,12 +362,17 @@ background-color: #E1306C;
 }
 
 @media (max-width: 768px) {
-  
-
   .mobile-only {
     display: block;
     text-align: center;
     margin-top: 15px;
+    font-size: 14px;
+  }
+
+  .panel input {
+    margin-bottom: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
     font-size: 14px;
   }
 

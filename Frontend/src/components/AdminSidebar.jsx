@@ -87,7 +87,7 @@ export default function AdminSidebar() {
     <>
       <div className="kcee-sidebar">
         {/* Brand */}
-        <div className="sidebar-brand">KCEE Admin</div>
+        <div className="sidebar-brand">KCEECOLLECTION</div>
 
         {/* User info */}
         <div className="sidebar-user">

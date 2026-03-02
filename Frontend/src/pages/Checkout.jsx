@@ -52,6 +52,8 @@ export default function Checkout() {
     try {
       setOrderLoading(true);
       console.log("1. handleSuccess called with ref:", reference);
+      console.log("Customer email:", formData.email);
+      console.log("Order body customer:", formData);
 
       await fetch(`${import.meta.env.VITE_API_URL}/api/paystack/verify/${reference}`);
       console.log("2. Verify done");

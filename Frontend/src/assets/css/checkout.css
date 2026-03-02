@@ -282,6 +282,10 @@ iframe[name="paystack-iframe"] {
     padding: 20px;
   }
 
+  .form-group {
+    margin-bottom: 12px;
+  }
+
   .form-group input {
     padding: 10px;
     border-radius: 4px;
