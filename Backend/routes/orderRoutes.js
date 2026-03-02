@@ -102,8 +102,9 @@ router.post("/", protectUser, async (req, res) => {
     }
 
     // Check stock levels and alert admin if low
+    // Check stock levels and alert admin if low
     for (const item of req.body.items || []) {
-      if (item.productId) {
+      if (item.productId && item.productId.match(/^[0-9a-fA-F]{24}$/)) {
         const product = await Product.findById(item.productId);
         if (product && product.stock !== undefined && product.stock <= LOW_STOCK_THRESHOLD) {
           sendLowStockAlert(product).catch(console.error);
