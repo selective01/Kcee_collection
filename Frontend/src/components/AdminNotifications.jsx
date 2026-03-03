@@ -1,8 +1,9 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import axios from "axios";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 const STORAGE_KEY = "kcee_admin_notifications";
+const COUNT_KEY = "kcee_admin_last_order_count"; // ← persisted across sessions
 
 const getStored = () => {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
@@ -13,70 +14,95 @@ const saveStored = (notifications) => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
 };
 
+const getStoredCount = () => {
+  const val = localStorage.getItem(COUNT_KEY);
+  return val !== null ? parseInt(val, 10) : null;
+};
+
+const saveStoredCount = (count) => {
+  localStorage.setItem(COUNT_KEY, String(count));
+};
+
 const typeStyles = {
-  order: { bg: "#f0fdf4", color: "#16a34a", icon: "fa-bag-shopping" },
+  order:   { bg: "#f0fdf4", color: "#16a34a", icon: "fa-bag-shopping" },
   payment: { bg: "#dbeafe", color: "#1d4ed8", icon: "fa-circle-dollar-to-slot" },
-  stock: { bg: "#fff7ed", color: "#ea580c", icon: "fa-triangle-exclamation" },
+  stock:   { bg: "#fff7ed", color: "#ea580c", icon: "fa-triangle-exclamation" },
 };
 
 export default function AdminNotifications() {
   const [notifications, setNotifications] = useState(getStored);
   const [open, setOpen] = useState(false);
-  const [lastOrderCount, setLastOrderCount] = useState(null);
+  const lastOrderCountRef = useRef(getStoredCount()); // ← restored from localStorage on mount
   const dropdownRef = useRef(null);
 
   const unread = notifications.filter((n) => !n.read).length;
 
-  useEffect(() => {
-    const checkOrders = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await axios.get(`${BASE_URL}/api/orders`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const orders = res.data;
+  const checkOrders = useCallback(async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
 
-        if (lastOrderCount === null) {
-          setLastOrderCount(orders.length);
-          return;
-        }
+    try {
+      const res = await axios.get(`${BASE_URL}/api/orders`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const orders = res.data;
+      const currentCount = orders.length;
 
-        if (orders.length > lastOrderCount) {
-          const newOrders = orders.slice(0, orders.length - lastOrderCount);
-          const newNotifs = newOrders.map((o) => ({
-            id: o._id,
-            type: "order",
-            title: "New Order Received",
+      // First ever run — no stored count at all, set baseline and exit
+      if (lastOrderCountRef.current === null) {
+        lastOrderCountRef.current = currentCount;
+        saveStoredCount(currentCount);
+        return;
+      }
+
+      // New orders detected — includes orders made while logged out
+      if (currentCount > lastOrderCountRef.current) {
+        const diff = currentCount - lastOrderCountRef.current;
+        const newOrders = orders.slice(0, diff);
+
+        const newNotifs = newOrders.map((o) => ({
+          id: o._id,
+          type: "order",
+          title: "New Order Received",
+          message: `₦${(o.totalPrice || 0).toLocaleString()} from ${o.customer?.fullName || "a customer"}`,
+          time: new Date().toISOString(),
+          read: false,
+        }));
+
+        const paidNotifs = newOrders
+          .filter((o) => o.paymentStatus?.toLowerCase() === "paid")
+          .map((o) => ({
+            id: `pay_${o._id}`,
+            type: "payment",
+            title: "Payment Received",
             message: `₦${(o.totalPrice || 0).toLocaleString()} from ${o.customer?.fullName || "a customer"}`,
             time: new Date().toISOString(),
             read: false,
           }));
 
-          const paidNotifs = newOrders
-            .filter((o) => o.paymentStatus?.toLowerCase() === "paid")
-            .map((o) => ({
-              id: `pay_${o._id}`,
-              type: "payment",
-              title: "Payment Received",
-              message: `₦${(o.totalPrice || 0).toLocaleString()} from ${o.customer?.fullName || "a customer"}`,
-              time: new Date().toISOString(),
-              read: false,
-            }));
+        // Persist the new count so next logout/login cycle works correctly
+        lastOrderCountRef.current = currentCount;
+        saveStoredCount(currentCount);
 
-          const updated = [...newNotifs, ...paidNotifs, ...notifications].slice(0, 50);
-          setNotifications(updated);
+        setNotifications((prev) => {
+          // Deduplicate by id to avoid double entries
+          const existingIds = new Set(prev.map((n) => n.id));
+          const fresh = [...newNotifs, ...paidNotifs].filter((n) => !existingIds.has(n.id));
+          const updated = [...fresh, ...prev].slice(0, 50);
           saveStored(updated);
-          setLastOrderCount(orders.length);
-        }
-      } catch {
-        // silent fail
+          return updated;
+        });
       }
-    };
+    } catch {
+      // silent fail
+    }
+  }, []);
 
+  useEffect(() => {
     checkOrders();
     const interval = setInterval(checkOrders, 30000);
     return () => clearInterval(interval);
-  }, [lastOrderCount, notifications]);
+  }, [checkOrders]);
 
   useEffect(() => {
     const handler = (e) => {

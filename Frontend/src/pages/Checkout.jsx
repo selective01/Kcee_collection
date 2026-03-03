@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useCart } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -17,27 +17,55 @@ export default function Checkout() {
   const [shippingLoading, setShippingLoading] = useState(false);
   const [orderLoading, setOrderLoading] = useState(false);
   const [shippingCalculated, setShippingCalculated] = useState(false);
+
   const shipping = selectedRate?.price || 0;
   const grandTotal = subtotal + shipping;
+
+  // ✅ Refs to capture latest values at the moment of payment success
+  // This avoids stale closure bugs where grandTotal/formData/selectedRate
+  // may have been the values from a previous render
+  const grandTotalRef = useRef(grandTotal);
+  const formDataRef = useRef(formData);
+  const selectedRateRef = useRef(selectedRate);
+  const cartItemsRef = useRef(cartItems);
+
+  useEffect(() => { grandTotalRef.current = grandTotal; }, [grandTotal]);
+  useEffect(() => { formDataRef.current = formData; }, [formData]);
+  useEffect(() => { selectedRateRef.current = selectedRate; }, [selectedRate]);
+  useEffect(() => { cartItemsRef.current = cartItems; }, [cartItems]);
 
   useEffect(() => {
     if (loading) return;
     if (!user) { alert("Please log in to checkout."); navigate("/auth"); }
-  }, [user, loading]);
+  }, [user, loading, navigate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (["state", "country"].includes(e.target.name)) { setShippingRates([]); setSelectedRate(null); setShippingCalculated(false); }
+    if (["state", "country"].includes(e.target.name)) {
+      setShippingRates([]);
+      setSelectedRate(null);
+      setShippingCalculated(false);
+    }
   };
 
   const calculateShipping = async () => {
     if (!formData.state && !formData.country) { alert("Please enter your city/state and country first."); return; }
     try {
       setShippingLoading(true);
-      const res = await fetch(`${BASE_URL}/api/shipping/calculate`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ state: formData.state, country: formData.country, items: cartItems.map((item) => ({ weight: item.weight || 0.5, quantity: item.quantity })) }) });
+      const res = await fetch(`${BASE_URL}/api/shipping/calculate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ state: formData.state, country: formData.country, items: cartItems.map((item) => ({ weight: item.weight || 0.5, quantity: item.quantity })) }),
+      });
       const data = await res.json();
-      setShippingRates(data.rates || []); setSelectedRate(data.rates?.[0] || null); setShippingCalculated(true);
-    } catch { alert("Failed to calculate shipping. Please try again."); } finally { setShippingLoading(false); }
+      setShippingRates(data.rates || []);
+      setSelectedRate(data.rates?.[0] || null);
+      setShippingCalculated(true);
+    } catch {
+      alert("Failed to calculate shipping. Please try again.");
+    } finally {
+      setShippingLoading(false);
+    }
   };
 
   const isFormValid = () => {
@@ -51,19 +79,81 @@ export default function Checkout() {
   const handleSuccess = async (reference) => {
     try {
       setOrderLoading(true);
-      await fetch(`${BASE_URL}/api/paystack/verify/${reference}`);
+
+      // Step 1: Verify payment with Paystack
+      const verifyRes = await fetch(`${BASE_URL}/api/paystack/verify/${reference}`);
+      const verifyData = await verifyRes.json();
+
+      // ✅ Stop if verification failed
+      if (!verifyRes.ok || !verifyData.success) {
+        alert("Payment verification failed. Please contact support with reference: " + reference);
+        return;
+      }
+
+      // Step 2: Read latest values from refs (avoids stale closure)
+      const currentTotal = grandTotalRef.current;
+      const currentForm = formDataRef.current;
+      const currentRate = selectedRateRef.current;
+      const currentItems = cartItemsRef.current;
+
+      // Step 3: Save order
       const token = localStorage.getItem("token");
-      const orderRes = await fetch(`${BASE_URL}/api/orders`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ items: cartItems.map((item) => ({ productId: item._id || item.id, name: item.name, image: item.image, size: item.size, quantity: item.quantity, price: item.price, weight: item.weight || 0.5 })), totalPrice: grandTotal, paymentStatus: "Paid", reference, customer: formData, shippingCost: shipping, shippingProvider: selectedRate?.provider }) });
-      if (!orderRes.ok) { alert("Payment received but order could not be saved. Please contact support."); return; }
-      clearCart(); navigate("/order-success");
-    } catch (error) { console.error("handleSuccess error:", error); } finally { setOrderLoading(false); }
+      const orderRes = await fetch(`${BASE_URL}/api/orders`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          items: currentItems.map((item) => ({
+            productId: item._id || item.id,
+            name: item.name,
+            image: item.image,
+            size: item.size,
+            quantity: item.quantity,
+            price: item.price,
+            weight: item.weight || 0.5,
+          })),
+          totalPrice: currentTotal,
+          paymentStatus: "Paid",
+          reference,
+          customer: currentForm,
+          shippingCost: currentRate?.price || 0,
+          shippingProvider: currentRate?.provider,
+        }),
+      });
+
+      // ✅ Log exact error from server to help debug
+      if (!orderRes.ok) {
+        const errData = await orderRes.json().catch(() => ({}));
+        console.error("Order save failed:", errData);
+        alert(`Payment received but order could not be saved. Reference: ${reference}. Please contact support.`);
+        return;
+      }
+
+      clearCart();
+      navigate("/order-success");
+    } catch (error) {
+      console.error("handleSuccess error:", error);
+      alert("Something went wrong. Your payment may have gone through. Please contact support with reference: " + reference);
+    } finally {
+      setOrderLoading(false);
+    }
   };
 
   const handlePayment = () => {
     if (!isFormValid()) return;
     if (!window.PaystackPop) { alert("Payment system is still loading. Please try again."); return; }
     const handler = new window.PaystackPop();
-    handler.newTransaction({ key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY, email: formData.email, amount: grandTotal * 100, currency: "NGN", ref: `T${Date.now()}`, onSuccess: (transaction) => handleSuccess(transaction.reference || transaction.trxref), onCancel: () => alert("Payment cancelled.") });
+    handler.newTransaction({
+      key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
+      email: formData.email,
+      amount: grandTotal * 100,
+      currency: "NGN",
+      ref: `T${Date.now()}`,
+      onSuccess: (transaction) => handleSuccess(transaction.reference || transaction.trxref),
+      onCancel: () => alert("Payment cancelled."),
+    });
   };
 
   return (
