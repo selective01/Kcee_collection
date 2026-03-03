@@ -1,121 +1,93 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
-
-
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
+import SEO from "../components/SEO";
 
-import shoes1 from "../assets/My_Collections/Shoes/Shoe (1).jpg";
-import shoes2 from "../assets/My_Collections/Shoes/Shoe (2).jpg";
-import shoes3 from "../assets/My_Collections/Shoes/Shoe (3).jpg";
-import shoes4 from "../assets/My_Collections/Shoes/Shoe (4).jpg";
-import shoes5 from "../assets/My_Collections/Shoes/Shoe (5).jpg";   
-import shoes6 from "../assets/My_Collections/Shoes/Shoe (6).jpg";
-import shoes7 from "../assets/My_Collections/Shoes/Shoe (7).jpg";
-import shoes8 from "../assets/My_Collections/Shoes/Shoe (8).jpg";
-import shoes9 from "../assets/My_Collections/Shoes/Shoe (9).jpg";
-import shoes10 from "../assets/My_Collections/Shoes/Shoe (10).jpg";
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 const Shoes = () => {
   const { addToCart } = useCart();
   const { user } = useAuth();
   const isLoggedIn = !!user;
   const location = useLocation();
-
-  // State for selected sizes
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedSizes, setSelectedSizes] = useState({});
+  const SIZE_OPTIONS = [40, 41, 42, 43, 44, 45];
+  const SIZE_CLASS = "size-option-shoe";
 
-  // Shoe sizes
-  const sizes = [40, 41, 42, 43, 44, 45];
-
-  const products = [
-    { id: "shoes-001", name: "Premium Shoes", price: 12000, image: shoes1 },
-    { id: "shoes-002", name: "Premium Shoes", price: 12000, image: shoes2 },
-    { id: "shoes-003", name: "Premium Shoes", price: 12555, image: shoes3 },
-    { id: "shoes-004", name: "Premium Shoes", price: 12555, image: shoes4 },
-    { id: "shoes-005", name: "Premium Shoes", price: 13333, image: shoes5 },
-    { id: "shoes-006", name: "Premium Shoes", price: 13333, image: shoes6 },
-    { id: "shoes-007", name: "Premium Shoes", price: 14444, image: shoes7 },
-    { id: "shoes-008", name: "Premium Shoes", price: 14444, image: shoes8 },
-    { id: "shoes-009", name: "Premium Shoes", price: 15555, image: shoes9 },
-    { id: "shoes-010", name: "Premium Shoes", price: 15555, image: shoes10 },
-  ];
+  useEffect(() => {
+    fetch(`${BASE_URL}/api/products/category/Shoes`)
+      .then((res) => res.json())
+      .then((data) => { setProducts(data); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, []);
 
   const handleSizeSelect = (productId, size) =>
-    setSelectedSizes({ ...selectedSizes, [productId]: size });
+    setSelectedSizes((prev) => ({ ...prev, [productId]: size }));
 
   const handleAddToCart = (product) => {
-    const selectedSize = selectedSizes[product.id];
-    if (!selectedSize) {
-      alert("Please select a shoe size");
-      return;
-    }
-    addToCart({ ...product, size: selectedSize });
+    const selectedSize = selectedSizes[product._id];
+    if (!selectedSize) { alert("Please select a size"); return; }
+    addToCart({ ...product, id: product._id, size: selectedSize });
   };
 
   return (
     <>
-      
+      <SEO
+        title="Shoes"
+        description="Shop Luxury Leather Shoes at Kcee Collection."
+        image="https://kceecollection.com/og-image.jpg"
+        url="https://kceecollection.com/shoes"
+      />
       <section className="premium-categories product-page">
         <div className="section-header">
           <h2>Shoes</h2>
           <p>Luxury Leather Shoes</p>
         </div>
 
-        <div className="categories-grid">
-          {products.map((product) => (
-            <div key={product.id} className="category-card product-card">
-              <div className="image-wrapper">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="product-img"
-                />
-              </div>
-
-              <div className="card-info">
-                <h3>{product.name}</h3>
-                <p className="price">₦{product.price.toLocaleString()}</p>
-                <p className="description">{product.description}</p>
-                {/* Shoe Size Selector */}
-                <div className="size-selector">
-                  {sizes.map((size) => (
-                    <span
-                      key={size}
-                      className={`size-option-shoe ${
-                        selectedSizes[product.id] === size ? "active" : ""
-                      }`}
-                      onClick={() => handleSizeSelect(product.id, size)}
-                    >
-                      {size}
-                    </span>
-                  ))}
+        {loading ? (
+          <p style={{ textAlign: "center", padding: "40px" }}>Loading...</p>
+        ) : products.length === 0 ? (
+          <p style={{ textAlign: "center", padding: "40px" }}>No products found.</p>
+        ) : (
+          <div className="categories-grid">
+            {products.map((product) => (
+              <div key={product._id} className="category-card product-card">
+                <div className="image-wrapper">
+                  <img src={product.image} alt={product.name} className="product-img" />
                 </div>
-
-                {isLoggedIn ? (
-                  <button
-                    className="add-to-cart-btn"
-                    onClick={() => handleAddToCart(product)}
-                  >
-                    Add to Cart
-                  </button>
-                ) : (
-                  <p className="login-warning">
-                    Please{" "}
-                    <strong>
-                      <Link to="/auth" state={{ from: location }}>
-                        login
-                      </Link>
-                    </strong>{" "}
-                    to add to cart
-                  </p>
-                )}
+                <div className="card-info">
+                  <h3>{product.name}</h3>
+                  <p className="price">₦{product.price.toLocaleString()}</p>
+                  <p className="description">{product.description}</p>
+                  <div className="size-selector">
+                    {SIZE_OPTIONS.map((size) => (
+                      <span
+                        key={size}
+                        className={`size-option-shoe ${selectedSizes[product._id] === size ? "active" : ""}`}
+                        onClick={() => handleSizeSelect(product._id, size)}
+                      >
+                        {size}
+                      </span>
+                    ))}
+                  </div>
+                  {isLoggedIn ? (
+                    <button className="add-to-cart-btn" onClick={() => handleAddToCart(product)}>
+                      Add to Cart
+                    </button>
+                  ) : (
+                    <p className="login-warning">
+                      Please <strong><Link to="/auth" state={{ from: location }}>login</Link></strong> to add to cart
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
-      
     </>
   );
 };

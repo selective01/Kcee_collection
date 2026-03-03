@@ -4,6 +4,27 @@ import { useAuth } from "../../context/AuthContext";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
+const CATEGORIES = [
+  { label: "Bags",            href: "/bags" },
+  { label: "Caps",            href: "/caps" },
+  { label: "Club Jerseys",    href: "/club-jersey" },
+  { label: "Designer Shirts", href: "/designer-shirts" },
+  { label: "Hoodies",         href: "/hoodies" },
+  { label: "Jeans",           href: "/jeans" },
+  { label: "Jean Shorts",     href: "/jean-shorts" },
+  { label: "Joggers",         href: "/joggers" },
+  { label: "Perfume",         href: "/perfume" },
+  { label: "Polo",            href: "/polo" },
+  { label: "Retro Jerseys",   href: "/retro-jersey" },
+  { label: "Shoes",           href: "/shoes" },
+  { label: "Shorts",          href: "/shorts" },
+  { label: "Sleeveless",      href: "/sleeveless" },
+  { label: "Slippers",        href: "/slippers" },
+  { label: "Sneakers",        href: "/sneakers" },
+  { label: "T-Shirts",        href: "/t-shirts" },
+  { label: "Watches",         href: "/watches" },
+];
+
 const toBase64 = (file) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -49,6 +70,7 @@ export default function AdminNewArrivals() {
     e.preventDefault();
     setError(""); setSuccess("");
     if (!img1File) { setError("Primary image is required"); return; }
+    if (!formData.href) { setError("Please select a category"); return; }
     try {
       setLoading(true);
       const img1 = await toBase64(img1File);
@@ -92,7 +114,6 @@ export default function AdminNewArrivals() {
         {error && <p style={{ color: "#dc2626", marginBottom: 12, fontSize: "0.85rem" }}>{error}</p>}
         {success && <p style={{ color: "#16a34a", marginBottom: 12, fontSize: "0.85rem" }}>{success}</p>}
 
-        {/* Form */}
         <div className="ap-form-card">
           <h2>Add New Arrival</h2>
           <form onSubmit={handleCreate}>
@@ -104,22 +125,24 @@ export default function AdminNewArrivals() {
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })} />
               </div>
               <div>
-                <div className="field-label">Price *</div>
-                <input className="ap-input" type="text" placeholder="e.g. ₦45,000"
+                <div className="field-label">Price (₦) *</div>
+                <input className="ap-input" type="number" placeholder="e.g. 45000"
                   value={formData.price} required
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })} />
+                  onChange={(e) => setFormData({ ...formData, price: +e.target.value })} />
               </div>
               <div>
-                <div className="field-label">Product Link *</div>
-                <input className="ap-input" type="text" placeholder="e.g. /watches"
-                  value={formData.href} required
-                  onChange={(e) => setFormData({ ...formData, href: e.target.value })} />
+                <div className="field-label">Category *</div>
+                <select className="ap-input" value={formData.href} required
+                  onChange={(e) => setFormData({ ...formData, href: e.target.value })}>
+                  <option value="">Select a category</option>
+                  {CATEGORIES.map((cat) => (
+                    <option key={cat.href} value={cat.href}>{cat.label}</option>
+                  ))}
+                </select>
               </div>
             </div>
 
-            {/* Images */}
             <div className="ap-form-grid" style={{ marginTop: 16 }}>
-              {/* Image 1 */}
               <div>
                 <div className="field-label">Primary Image *</div>
                 <div className="file-upload-wrapper">
@@ -143,7 +166,6 @@ export default function AdminNewArrivals() {
                 </div>
               </div>
 
-              {/* Image 2 */}
               <div>
                 <div className="field-label">Secondary Image (hover effect)</div>
                 <div className="file-upload-wrapper">
@@ -174,65 +196,34 @@ export default function AdminNewArrivals() {
           </form>
         </div>
 
-        {/* Grid */}
         <div className="ap-card" style={{ padding: 20 }}>
           <h2 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: 16, color: "#0f172a" }}>
             Current New Arrivals ({arrivals.length})
           </h2>
-
           {loading && arrivals.length === 0 ? (
             <p style={{ color: "#9ca3af", fontSize: "0.85rem" }}>Loading...</p>
           ) : arrivals.length === 0 ? (
             <p style={{ color: "#9ca3af", fontSize: "0.85rem" }}>No new arrivals yet.</p>
           ) : (
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-              gap: 16,
-            }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 16 }}>
               {arrivals.map((item) => (
-                <div key={item._id} style={{
-                  border: "1px solid #f1f5f9",
-                  borderRadius: 10,
-                  overflow: "hidden",
-                  background: "#fff",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                }}>
+                <div key={item._id} style={{ border: "1px solid #f1f5f9", borderRadius: 10, overflow: "hidden", background: "#fff", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
                   <div style={{ position: "relative", height: 160, overflow: "hidden", background: "#f8fafc" }}>
-                    <img src={item.img1} alt={item.title} style={{
-                      width: "100%", height: "100%", objectFit: "cover",
-                    }} />
+                    <img src={item.img1} alt={item.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     {item.img2 && (
-                      <img src={item.img2} alt={item.title} style={{
-                        position: "absolute", top: 0, left: 0,
-                        width: "100%", height: "100%", objectFit: "cover",
-                        opacity: 0, transition: "opacity 0.3s",
-                      }}
+                      <img src={item.img2} alt={item.title}
+                        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0, transition: "opacity 0.3s" }}
                         onMouseEnter={(e) => e.target.style.opacity = 1}
                         onMouseLeave={(e) => e.target.style.opacity = 0}
                       />
                     )}
-                    <span style={{
-                      position: "absolute", top: 8, left: 8,
-                      background: "#3A9D23", color: "#fff",
-                      fontSize: "10px", fontWeight: 700,
-                      padding: "3px 8px", borderRadius: 4,
-                    }}>NEW</span>
+                    <span style={{ position: "absolute", top: 8, left: 8, background: "#3A9D23", color: "#fff", fontSize: "10px", fontWeight: 700, padding: "3px 8px", borderRadius: 4 }}>NEW</span>
                   </div>
                   <div style={{ padding: "12px 14px" }}>
-                    <div style={{ fontSize: "0.88rem", fontWeight: 600, color: "#0f172a", marginBottom: 4 }}>
-                      {item.title}
-                    </div>
-                    <div style={{ fontSize: "0.82rem", color: "#3A9D23", fontWeight: 600, marginBottom: 4 }}>
-                      {item.price}
-                    </div>
-                    <div style={{ fontSize: "0.75rem", color: "#9ca3af", marginBottom: 10 }}>
-                      → {item.href}
-                    </div>
-                    <button className="btn-red" style={{ width: "100%" }}
-                      onClick={() => handleDelete(item._id)}>
-                      Delete
-                    </button>
+                    <div style={{ fontSize: "0.88rem", fontWeight: 600, color: "#0f172a", marginBottom: 4 }}>{item.title}</div>
+                    <div style={{ fontSize: "0.82rem", color: "#3A9D23", fontWeight: 600, marginBottom: 4 }}>{item.price}</div>
+                    <div style={{ fontSize: "0.75rem", color: "#9ca3af", marginBottom: 10 }}>→ {item.href}</div>
+                    <button className="btn-red" style={{ width: "100%" }} onClick={() => handleDelete(item._id)}>Delete</button>
                   </div>
                 </div>
               ))}

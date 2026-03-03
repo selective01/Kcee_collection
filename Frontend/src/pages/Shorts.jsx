@@ -1,111 +1,93 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
-
-
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
+import SEO from "../components/SEO";
 
-import jeanshorts1 from "../assets/My_Collections/JeanShorts/JeanShort (1).jpg";
-import jeanshorts2 from "../assets/My_Collections/JeanShorts/JeanShort (2).jpg";
-import jeanshorts3 from "../assets/My_Collections/JeanShorts/JeanShort (3).jpg";
-import jeanshorts4 from "../assets/My_Collections/JeanShorts/JeanShort (4).jpg";
-import jeanshorts5 from "../assets/My_Collections/JeanShorts/JeanShort (5).jpg";
-import jeanshorts6 from "../assets/My_Collections/JeanShorts/JeanShort (6).jpg";
-import jeanshorts7 from "../assets/My_Collections/JeanShorts/JeanShort (7).jpg";
-import jeanshorts8 from "../assets/My_Collections/JeanShorts/JeanShort (8).jpg";
-import jeanshorts9 from "../assets/My_Collections/JeanShorts/JeanShort (9).jpg";
-import jeanshorts10 from "../assets/My_Collections/JeanShorts/JeanShort (10).jpg";
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 const Shorts = () => {
   const { addToCart } = useCart();
   const { user } = useAuth();
   const isLoggedIn = !!user;
   const location = useLocation();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedSizes, setSelectedSizes] = useState({});
-  const sizes = [32, 33, 34, 36, 38, 40];
+  const SIZE_OPTIONS = [32, 33, 34, 36, 38, 40];
+  const SIZE_CLASS = "size-option-shoe";
 
-  const products = [
-    { id: "jeanshorts-001", name: "Street Shorts", price: 12000, image: jeanshorts1 },
-    { id: "jeanshorts-002", name: "Street Shorts", price: 12000, image: jeanshorts2 },
-    { id: "jeanshorts-003", name: "Street Shorts", price: 12000, image: jeanshorts3 },
-    { id: "jeanshorts-004", name: "Street Shorts", price: 12000, image: jeanshorts4 },
-    { id: "jeanshorts-005", name: "Street Shorts", price: 12555, image: jeanshorts5 },
-    { id: "jeanshorts-006", name: "Street Shorts", price: 12555, image: jeanshorts6 },
-    { id: "jeanshorts-007", name: "Street Shorts", price: 12555, image: jeanshorts7 },
-    { id: "jeanshorts-008", name: "Street Shorts", price: 12555, image: jeanshorts8 },
-    { id: "jeanshorts-011", name: "Street Shorts", price: 12555, image: jeanshorts9 },
-    { id: "jeanshorts-012", name: "Street Shorts", price: 13333, image: jeanshorts10 },
-  ];
+  useEffect(() => {
+    fetch(`${BASE_URL}/api/products/category/Shorts`)
+      .then((res) => res.json())
+      .then((data) => { setProducts(data); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, []);
 
-  const handleSizeSelect = (productId, size) => setSelectedSizes({ ...selectedSizes, [productId]: size });
+  const handleSizeSelect = (productId, size) =>
+    setSelectedSizes((prev) => ({ ...prev, [productId]: size }));
+
   const handleAddToCart = (product) => {
-    const selectedSize = selectedSizes[product.id];
+    const selectedSize = selectedSizes[product._id];
     if (!selectedSize) { alert("Please select a size"); return; }
-    addToCart({ ...product, size: selectedSize });
+    addToCart({ ...product, id: product._id, size: selectedSize });
   };
 
   return (
     <>
-      
+      <SEO
+        title="Shorts"
+        description="Shop Premium Streetwear Shorts at Kcee Collection."
+        image="https://kceecollection.com/og-image.jpg"
+        url="https://kceecollection.com/shorts"
+      />
       <section className="premium-categories product-page">
         <div className="section-header">
-          <h2>Jean Shorts</h2>
-          <p>Premium streetwear shorts</p>
+          <h2>Shorts</h2>
+          <p>Premium Streetwear Shorts</p>
         </div>
-        <div className="categories-grid">
-          {products.map((product) => (
-            <div key={product.id} className="category-card product-card">
-              <div className="image-wrapper">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="product-img"
-                />
-              </div>
 
-              <div className="card-info">
-                <h3>{product.name}</h3>
-                <p className="price">₦{product.price.toLocaleString()}</p>
-                <p className="description">{product.description}</p>
-                {/* Shoe Size Selector */}
-                <div className="size-selector">
-                  {sizes.map((size) => (
-                    <span
-                      key={size}
-                      className={`size-option-shoe ${
-                        selectedSizes[product.id] === size ? "active" : ""
-                      }`}
-                      onClick={() => handleSizeSelect(product.id, size)}
-                    >
-                      {size}
-                    </span>
-                  ))}
+        {loading ? (
+          <p style={{ textAlign: "center", padding: "40px" }}>Loading...</p>
+        ) : products.length === 0 ? (
+          <p style={{ textAlign: "center", padding: "40px" }}>No products found.</p>
+        ) : (
+          <div className="categories-grid">
+            {products.map((product) => (
+              <div key={product._id} className="category-card product-card">
+                <div className="image-wrapper">
+                  <img src={product.image} alt={product.name} className="product-img" />
                 </div>
-
-                {isLoggedIn ? (
-                  <button
-                    className="add-to-cart-btn"
-                    onClick={() => handleAddToCart(product)}
-                  >
-                    Add to Cart
-                  </button>
-                ) : (
-                  <p className="login-warning">
-                    Please{" "}
-                    <strong>
-                      <Link to="/auth" state={{ from: location }}>
-                        login
-                      </Link>
-                    </strong>{" "}
-                    to add to cart
-                  </p>
-                )}
+                <div className="card-info">
+                  <h3>{product.name}</h3>
+                  <p className="price">₦{product.price.toLocaleString()}</p>
+                  <p className="description">{product.description}</p>
+                  <div className="size-selector">
+                    {SIZE_OPTIONS.map((size) => (
+                      <span
+                        key={size}
+                        className={`size-option-shoe ${selectedSizes[product._id] === size ? "active" : ""}`}
+                        onClick={() => handleSizeSelect(product._id, size)}
+                      >
+                        {size}
+                      </span>
+                    ))}
+                  </div>
+                  {isLoggedIn ? (
+                    <button className="add-to-cart-btn" onClick={() => handleAddToCart(product)}>
+                      Add to Cart
+                    </button>
+                  ) : (
+                    <p className="login-warning">
+                      Please <strong><Link to="/auth" state={{ from: location }}>login</Link></strong> to add to cart
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
-      
     </>
   );
 };

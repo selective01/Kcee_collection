@@ -199,6 +199,11 @@
   opacity: 1;
 }
 
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
 /* Tablet: 768px */
 @media (max-width: 768px) {
   .premium-arrivals {

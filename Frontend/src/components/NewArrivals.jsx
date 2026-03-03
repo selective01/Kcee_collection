@@ -30,7 +30,22 @@ const NewArrivals = () => {
     fetchArrivals();
   }, []);
 
-  if (loading) return null;
+  if (loading) return (
+    <section className="premium-arrivals">
+      <div className="section-header">
+        <h2>New Arrivals</h2>
+        <p>Latest drops from our streetwear collection</p>
+      </div>
+      <div style={{ display: "flex", gap: 16, padding: "0 20px" }}>
+        {[1, 2, 3].map((i) => (
+          <div key={i} style={{
+            flex: 1, borderRadius: 12, overflow: "hidden",
+            background: "#f1f5f9", height: 320, animation: "pulse 1.5s infinite"
+          }} />
+        ))}
+      </div>
+    </section>
+  );
   if (newArrivals.length === 0) return null;
 
   return (
@@ -64,7 +79,7 @@ const NewArrivals = () => {
               </div>
               <div className="card-info">
                 <h3>{item.title}</h3>
-                <p className="price">{item.price}</p>
+                <p className="price">₦{Number(item.price).toLocaleString()}</p>
                 <button className="view-product-btn" onClick={() => navigate(item.href)}>
                   View Product
                 </button>

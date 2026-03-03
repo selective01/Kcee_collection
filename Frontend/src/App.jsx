@@ -3,11 +3,11 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import { CartProvider } from "./context/CartContext";
 
 import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
 import Breadcrumb from "./components/Breadcrumb";
+import Home from "./pages/Home.jsx";
+import Footer from "./components/Footer";
 import AdminLayout from "./components/AdminLayout";
 
-import Home from "./pages/Home.jsx";
 import Cart from "./pages/Cart.jsx";
 import Checkout from "./pages/Checkout.jsx";
 import Auth from "./pages/Auth.jsx";

@@ -1,92 +1,95 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
-
-
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
+import SEO from "../components/SEO";
 
-import tshirts1 from "../assets/My_Collections/Tshirts/Tshirt (1).jpg";
-import tshirts2 from "../assets/My_Collections/Tshirts/Tshirt (2).jpg";
-import tshirts3 from "../assets/My_Collections/Tshirts/Tshirt (3).jpg";
-import tshirts4 from "../assets/My_Collections/Tshirts/Tshirt (4).jpg";
-import tshirts5 from "../assets/My_Collections/Tshirts/Tshirt (5).jpg";
-import tshirts6 from "../assets/My_Collections/Tshirts/Tshirt (6).jpg";
-import tshirts7 from "../assets/My_Collections/Tshirts/Tshirt (7).jpg";
-import tshirts8 from "../assets/My_Collections/Tshirts/Tshirt (8).jpg";
-import tshirts9 from "../assets/My_Collections/Tshirts/Tshirt (9).jpg";
-import tshirts10 from "../assets/My_Collections/Tshirts/Tshirt (10).jpg";
+const BASE_URL = import.meta.env.VITE_API_URL;
 
-const Tshirts = () => {
+const TShirts = () => {
   const { addToCart } = useCart();
   const { user } = useAuth();
   const isLoggedIn = !!user;
   const location = useLocation();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedSizes, setSelectedSizes] = useState({});
-  const sizes = ["S", "M", "L"]; // optional sizing for watches
+  const SIZE_OPTIONS = ["S", "M", "L", "XL"];
+  const SIZE_CLASS = "size-option";
 
-  const products = [
-    { id: "ts-001", name: "Luxury Tshirt", price: 45000, image: tshirts1 },
-    { id: "ts-002", name: "Luxury Tshirt", price: 45000, image: tshirts2 },
-    { id: "ts-003", name: "Luxury Tshirt", price: 45000, image: tshirts3 },
-    { id: "ts-004", name: "Luxury Tshirt", price: 45000, image: tshirts4 },
-    { id: "ts-005", name: "Luxury Tshirt", price: 45000, image: tshirts5 },
-    { id: "ts-006", name: "Luxury Tshirt", price: 45000, image: tshirts6 },
-    { id: "ts-007", name: "Luxury Tshirt", price: 45000, image: tshirts7 },
-    { id: "ts-011", name: "Luxury Tshirt", price: 45555, image: tshirts8 },
-    { id: "ts-121", name: "Luxury Tshirt", price: 45555, image: tshirts9 },
-    { id: "ts-131", name: "Luxury Tshirt", price: 46666, image: tshirts10 },
-  ];
+  useEffect(() => {
+    fetch(`${BASE_URL}/api/products/category/TShirts`)
+      .then((res) => res.json())
+      .then((data) => { setProducts(data); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, []);
 
-  const handleSizeSelect = (productId, size) => setSelectedSizes({ ...selectedSizes, [productId]: size });
+  const handleSizeSelect = (productId, size) =>
+    setSelectedSizes((prev) => ({ ...prev, [productId]: size }));
+
   const handleAddToCart = (product) => {
-    const selectedSize = selectedSizes[product.id];
+    const selectedSize = selectedSizes[product._id];
     if (!selectedSize) { alert("Please select a size"); return; }
-    addToCart({ ...product, size: selectedSize });
+    addToCart({ ...product, id: product._id, size: selectedSize });
   };
 
   return (
     <>
-      
+      <SEO
+        title="T-Shirts"
+        description="Shop Luxury T-Shirts Collection at Kcee Collection."
+        image="https://kceecollection.com/og-image.jpg"
+        url="https://kceecollection.com/tshirts"
+      />
       <section className="premium-categories product-page">
         <div className="section-header">
           <h2>T-Shirts</h2>
-          <p>Luxury T-shirts collection</p>
+          <p>Luxury T-Shirts Collection</p>
         </div>
-        <div className="categories-grid">
-          {products.map((product) => (
-            <div key={product.id} className="category-card product-card">
-              <div className="image-wrapper">
-                <img src={product.image} alt={product.name} className="product-img" />
-              </div>
-              <div className="card-info">
-                <h3>{product.name}</h3>
-                <p className="price">₦{product.price.toLocaleString()}</p>
-                <p className="description">{product.description}</p>                <div className="size-selector">
-                  {sizes.map((size) => (
-                    <span
-                      key={size}
-                      className={`size-option ${selectedSizes[product.id] === size ? "active" : ""}`}
-                      onClick={() => handleSizeSelect(product.id, size)}
-                    >
-                      {size}
-                    </span>
-                  ))}
+
+        {loading ? (
+          <p style={{ textAlign: "center", padding: "40px" }}>Loading...</p>
+        ) : products.length === 0 ? (
+          <p style={{ textAlign: "center", padding: "40px" }}>No products found.</p>
+        ) : (
+          <div className="categories-grid">
+            {products.map((product) => (
+              <div key={product._id} className="category-card product-card">
+                <div className="image-wrapper">
+                  <img src={product.image} alt={product.name} className="product-img" />
                 </div>
-                {isLoggedIn ? (
-                  <button className="add-to-cart-btn" onClick={() => handleAddToCart(product)}>Add to Cart</button>
-                ) : (
-                  <p className="login-warning">
-                    Please <strong><Link to="/auth" state={{ from: location }}>login</Link></strong> to add to cart
-                  </p>
-                )}
+                <div className="card-info">
+                  <h3>{product.name}</h3>
+                  <p className="price">₦{product.price.toLocaleString()}</p>
+                  <p className="description">{product.description}</p>
+                  <div className="size-selector">
+                    {SIZE_OPTIONS.map((size) => (
+                      <span
+                        key={size}
+                        className={`size-option ${selectedSizes[product._id] === size ? "active" : ""}`}
+                        onClick={() => handleSizeSelect(product._id, size)}
+                      >
+                        {size}
+                      </span>
+                    ))}
+                  </div>
+                  {isLoggedIn ? (
+                    <button className="add-to-cart-btn" onClick={() => handleAddToCart(product)}>
+                      Add to Cart
+                    </button>
+                  ) : (
+                    <p className="login-warning">
+                      Please <strong><Link to="/auth" state={{ from: location }}>login</Link></strong> to add to cart
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
-      
     </>
   );
 };
 
-export default Tshirts;
+export default TShirts;

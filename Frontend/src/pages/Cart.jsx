@@ -1,25 +1,21 @@
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import Toast from "../components/Toast";
-
+import SEO from "../components/SEO";
 import "../assets/css/cart.css";
 
 const Cart = () => {
   const navigate = useNavigate();
-
-  // Destructure correctly from context
-  const {
-    cartItems,
-    removeFromCart,
-    clearCart,
-    updateQuantity,
-    subtotal,
-    totalItems,
-    toastMessage,
-  } = useCart();
+  const { cartItems, removeFromCart, clearCart, updateQuantity, subtotal, totalItems, toastMessage } = useCart();
 
   return (
     <>
+      <SEO
+        title="Cart"
+        description="View and manage your shopping cart at Kcee Collection."
+        image="https://kceecollection.com/og-image.jpg"
+        url="https://kceecollection.com/cart"
+      />
       <main className="cart-page">
         <Toast message={toastMessage} />
         <h1>Your Shopping Cart</h1>
@@ -40,40 +36,19 @@ const Cart = () => {
                   <th></th>
                 </tr>
               </thead>
-
               <tbody>
                 {cartItems.map((item) => (
                   <tr key={`${item.id}-${item.size}`}>
                     <td>{item.name}</td>
-                    <td>
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="cart-img"
-                      />
-                    </td>
+                    <td><img src={item.image} alt={item.name} className="cart-img" /></td>
                     <td>{item.size || "-"}</td>
                     <td>₦{item.price.toLocaleString()}</td>
                     <td>
-                      <input
-                        className="qty-input"
-                        type="number"
-                        min="1"
-                        value={item.quantity}
-                        onChange={(e) =>
-                          updateQuantity(item.id, item.size, Number(e.target.value))
-                        }
-                      />
+                      <input className="qty-input" type="number" min="1" value={item.quantity}
+                        onChange={(e) => updateQuantity(item.id, item.size, Number(e.target.value))} />
                     </td>
                     <td>₦{(item.price * item.quantity).toLocaleString()}</td>
-                    <td>
-                      <span
-                        className="remove-btn"
-                        onClick={() => removeFromCart(item.id, item.size)}
-                      >
-                        &times;
-                      </span>
-                    </td>
+                    <td><span className="remove-btn" onClick={() => removeFromCart(item.id, item.size)}>&times;</span></td>
                   </tr>
                 ))}
               </tbody>
@@ -82,18 +57,11 @@ const Cart = () => {
             <div className="cart-summary">
               <p>Total Items: {totalItems}</p>
               <p>Total Amount: ₦{subtotal.toLocaleString()}</p>
-
               <div className="cart-btn-actions">
-                <button
-                  onClick={() => navigate("/checkout")}
-                  className="checkout-btn"
-                  disabled={cartItems.length === 0}
-                >
+                <button onClick={() => navigate("/checkout")} className="checkout-btn" disabled={cartItems.length === 0}>
                   Proceed to Checkout
                 </button>
-                <button onClick={clearCart} className="clear-cart-btn">
-                  Clear Cart
-                </button>
+                <button onClick={clearCart} className="clear-cart-btn">Clear Cart</button>
               </div>
             </div>
           </>

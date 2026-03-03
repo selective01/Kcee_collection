@@ -10,6 +10,16 @@ router.get("/", async (req, res) => {
   res.json(products);
 });
 
+/* GET PRODUCTS BY CATEGORY */
+router.get("/category/:category", async (req, res) => {
+  try {
+    const products = await Product.find({ category: req.params.category }).sort({ createdAt: -1 });
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ msg: "Failed to fetch products by category" });
+  }
+});
+
 /* CREATE PRODUCT */
 router.post("/", protectAdmin, async (req, res) => {
   const product = await Product.create(req.body);
