@@ -1,0 +1,120 @@
+:root {
+  --white-color: #ffffff;
+  --black-color: #0b0b0b;
+  --design-color: #3A9D23;       
+  --design-active-color: #27632A;  
+  --background-color: #F5F5DC;    
+  --red-color: #dc3545;          
+  --figcaption-color: #333;        
+  --hero-small-screen: 30px;
+  --hero-large-screen: 48px;
+  --font-small-screen: 12px;
+  --font-large-screen: 16px;
+  --grid-column-small-screen: 1fr 1fr;
+  --grid-column-medium-screen: repeat(3, 1fr);
+  --grid-column-large-screen: repeat(4, 1fr);
+  --accent-primary: #3A9D23;  
+  --accent-soft: #A58C69;   
+}
+
+.cart-page {
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+}
+.cart-page h1 {
+  text-align: center;
+  margin-bottom: 40px;
+  margin-top: 10px;
+  font-size: 24px;
+  font-weight: 700;
+  font-style: italic;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  text-align: center;
+}
+th {
+  background: var(--white-color);
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--design-color);
+}
+
+td {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--design-active-color);
+}
+
+td .qty-input {
+  width: 20%;
+  min-width: 30px; 
+  height: 30px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.cart-img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+}
+
+.remove-btn {
+  color: var(--red-color);
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 900;
+}
+.cart-summary {
+  text-align: right;
+  margin-top: 20px;
+  font-size: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cart-summary p {
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: right;
+  color: var(--black-color);
+}
+
+.cart-btn-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+}
+
+.checkout-btn {
+  background: var(--design-color);
+  color: var(--white-color);
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 15px;
+}
+
+.clear-cart-btn {
+  background: var(--red-color);
+  color: var(--white-color);
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 15px;
+}
