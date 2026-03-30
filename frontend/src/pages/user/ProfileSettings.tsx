@@ -23,7 +23,7 @@ type Tab = "info" | "password" | "account";
 
 export default function ProfileSettings() {
   const navigate = useNavigate();
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, loading } = useAuth();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [tab, setTab] = useState<Tab>("info");
@@ -47,12 +47,13 @@ export default function ProfileSettings() {
   const [pwSaving, setPwSaving] = useState(false);
   const [pwMsg,    setPwMsg]    = useState<{ ok: boolean; text: string } | null>(null);
 
-  useEffect(() => {
+ useEffect(() => {
+    if (loading) return;
     if (!user) { navigate("/auth"); return; }
     setName(user.name   || "");
     setEmail(user.email || "");
     setPhone((user as User).phone || "");
-  }, [user, navigate]);
+  }, [user, loading, navigate]);
 
   // ── Avatar upload ──────────────────────────────────────────────────────────
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -137,6 +138,8 @@ export default function ProfileSettings() {
     { key: "password", label: "Password",      icon: "fa-lock"         },
     { key: "account",  label: "Account",       icon: "fa-info-circle"  },
   ];
+
+  if (loading) return null;
 
   return (
     <div style={s.page}>
