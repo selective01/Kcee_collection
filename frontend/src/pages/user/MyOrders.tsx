@@ -56,7 +56,7 @@ export default function MyOrders() {
 
   useEffect(() => {
     if (!localStorage.getItem("token")) { navigate("/auth"); return; }
-    get<Order[]>("/orders/my")
+    get<Order[]>("/api/orders/my")
       .then(setOrders)
       .catch(console.error)
       .finally(() => setLoading(false));

@@ -6,8 +6,6 @@ export default function JeanShorts() {
       title="Jean Shorts"
       description="Premium Denim Shorts"
       seoUrl="/jean-shorts"
-      sizes={["S", "M", "L", "XL", "XXL"]}
-      sizeClass="size-option"
     />
   );
 }

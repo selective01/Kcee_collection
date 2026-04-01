@@ -48,13 +48,13 @@ export default function ProfileSettings() {
   const [pwMsg,    setPwMsg]    = useState<{ ok: boolean; text: string } | null>(null);
 
  useEffect(() => {
+    console.log("ProfileSettings mount — loading:", loading, "user:", user);
     if (loading) return;
     if (!user) { navigate("/auth"); return; }
     setName(user.name   || "");
     setEmail(user.email || "");
     setPhone((user as User).phone || "");
   }, [user, loading, navigate]);
-
   // ── Avatar upload ──────────────────────────────────────────────────────────
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

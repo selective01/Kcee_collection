@@ -6,8 +6,6 @@ export default function RetroJersey() {
       title="Retro Jersey"
       description="Classic Retro Football Jerseys"
       seoUrl="/retro-jersey"
-      sizes={["S", "M", "L", "XL", "XXL"]}
-      sizeClass="size-option"
     />
   );
 }

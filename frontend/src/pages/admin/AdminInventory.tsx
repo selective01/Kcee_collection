@@ -87,7 +87,7 @@ export default function AdminInventory() {
     if (isNaN(val) || val < 0) return;
     setSaving((s) => ({ ...s, [id]: true }));
     try {
-      await put(`/products/${id}`, { stock: val });
+      await put(`/api/products/${id}`, { stock: val });
       setProducts((prev) =>
         prev.map((p) => (p._id === id ? { ...p, stock: val } : p))
       );
@@ -121,7 +121,7 @@ export default function AdminInventory() {
     setBulkSaving(true);
     try {
       await Promise.all(
-        Array.from(selected).map((id) => put(`/products/${id}`, { stock: val }))
+        Array.from(selected).map((id) => put(`/api/products/${id}`, { stock: val }))
       );
       setProducts((prev) =>
         prev.map((p) => (selected.has(p._id) ? { ...p, stock: val } : p))

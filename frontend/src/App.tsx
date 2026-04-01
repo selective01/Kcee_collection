@@ -2,7 +2,6 @@ import React, { Suspense, useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { CartProvider } from "./context/CartProvider";
 import { WishlistProvider } from "./context/WishlistProvider";
-import { AuthProvider }     from "./context/AuthProvider";   // ✅ added
 import PageLoader           from "./components/ui/PageLoader";
 import UserLayout           from "./components/UserLayout";
 import PublicLayout         from "./components/PublicLayout"; // ✅ extracted
@@ -58,7 +57,6 @@ export default function App() {
   }, []);
 
   return (
-    <AuthProvider>
       <CartProvider>
         <WishlistProvider>
           <Suspense fallback={<PageLoader />}>
@@ -106,6 +104,5 @@ export default function App() {
           </Suspense>
         </WishlistProvider>
       </CartProvider>
-    </AuthProvider>
   );
 }

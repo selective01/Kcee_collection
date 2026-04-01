@@ -15,11 +15,14 @@ export const AuthProvider = ({ children }) => {
       if (!token) { setLoading(false); return; }
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       try {
-        const res = await axios.get(`${API_URL}/api/auth/me`);
-        setUser(res.data);
+        const res = await axios.get(`${API_URL}/api/auth/me`, { timeout: 10000 });
+        if (res.data) setUser(res.data);
       } catch (err) {
         console.error("Failed to fetch profile:", err);
-        logout();
+        // Only logout on 401 (invalid token), not on network errors or timeouts
+        if (err.response?.status === 401) {
+          logout();
+        }
       } finally {
         setLoading(false);
       }

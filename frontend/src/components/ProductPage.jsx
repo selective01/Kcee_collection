@@ -22,6 +22,28 @@ const CATEGORY_LABELS = {
   LongSleeve:     "Long Sleeve",
   RetroJersey:    "Retro Jersey",
 };
+
+const NUMBER_SIZES = ["32", "34", "36", "38", "39", "40", "41", "42", "43", "44", "45"];
+
+const CATEGORY_SIZES = {
+  TShirts:        ["S", "M", "L", "XL", "XXL"],
+  Polo:           ["S", "M", "L", "XL", "XXL"],
+  Hoodies:        ["S", "M", "L", "XL", "XXL"],
+  Sleeveless:     ["S", "M", "L", "XL", "XXL"],
+  ClubJersey:     ["S", "M", "L", "XL", "XXL"],
+  RetroJersey:    ["S", "M", "L", "XL", "XXL"],
+  DesignerShirts: ["S", "M", "L", "XL", "XXL"],
+  LongSleeve:     ["S", "M", "L", "XL", "XXL"],
+  Jeans:          ["32", "34", "36", "38", "40"],
+  Shorts:         ["32", "34", "36", "38", "40"],
+  JeanShorts:     ["32", "34", "36", "38", "40"],
+  Joggers:        ["32", "34", "36", "38", "40"],
+  Sneakers:       ["39", "40", "41", "42", "43", "44", "45"],
+  Shoes:          ["39", "40", "41", "42", "43", "44", "45"],
+  Slippers:       ["39", "40", "41", "42", "43", "44", "45"],
+  // Bags, Caps, Watches, Perfume — no sizes
+};
+
 const label = (cat) => CATEGORY_LABELS[cat] || cat;
 
 function SkeletonCard() {
@@ -54,7 +76,6 @@ function WishlistHeart({ productId }) {
 
 export default function ProductPage({
   category, title, description, seoUrl,
-  sizes = null, sizeClass = "size-option",
 }) {
   const { addToCart } = useCart();
   const { user }      = useAuth();
@@ -70,7 +91,6 @@ export default function ProductPage({
   const [hoveredId,      setHoveredId]      = useState(null);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
-  // Scroll indicator
   const checkScroll = () => {
     const el = tabsRef.current;
     if (!el) return;
@@ -89,7 +109,6 @@ export default function ProductPage({
     };
   }, []);
 
-  // Prefetch next few categories when idle
   useEffect(() => {
     const idx = ALL_CATEGORIES.indexOf(activeTab);
     const next = ALL_CATEGORIES.slice(idx + 1, idx + 4);
@@ -106,28 +125,33 @@ export default function ProductPage({
     }
   }, [activeTab]);
 
-  // Fetch active tab
   useEffect(() => {
     let cancelled = false;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    setLoading(true);
-    setError("");
     fetchCategory(activeTab)
       .then((data) => { if (!cancelled) { setProducts(data); setLoading(false); } })
       .catch((err)  => { if (!cancelled) { setError(err.message); setLoading(false); } });
     return () => { cancelled = true; };
   }, [activeTab]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    setActiveTab(category);
+    setSelectedSizes({});
+  }, [category]);
+
   const handleTabClick = (cat) => {
     setActiveTab(cat);
     setSelectedSizes({});
+    setLoading(true);
+    setError("");
   };
 
   const handleSizeSelect = (id, size) =>
     setSelectedSizes((p) => ({ ...p, [id]: size }));
 
   const handleAddToCart = (product) => {
-    if (sizes && activeTab === category) {
+    const activeSizes = CATEGORY_SIZES[activeTab];
+    if (activeSizes) {
       const s = selectedSizes[product._id];
       if (!s) { alert("Please select a size"); return; }
       addToCart({ ...product, id: product._id, size: s });
@@ -144,6 +168,8 @@ export default function ProductPage({
       .catch((err)  => { setError(err.message); setLoading(false); });
   };
 
+  const activeSizes = CATEGORY_SIZES[activeTab];
+
   return (
     <>
       <SEO
@@ -158,7 +184,6 @@ export default function ProductPage({
           <p className="pp-sub">{description}</p>
         </div>
 
-        {/* Category tabs with scroll indicator */}
         <div className="pp-tabs-outer">
           <div className="pp-tabs-wrap" ref={tabsRef} onScroll={checkScroll}>
             <div className="pp-tabs">
@@ -236,12 +261,12 @@ export default function ProductPage({
                       <p className="pp-card-price">₦{product.price.toLocaleString()}</p>
                     </div>
 
-                    {sizes && activeTab === category && (
+                    {activeSizes && (
                       <div className="pp-sizes">
-                        {sizes.map((size) => (
+                        {activeSizes.map((size) => (
                           <span
                             key={size}
-                            className={`pp-size ${sizeClass === "size-option-shoe" ? "pp-size-shoe" : ""} ${selectedSizes[product._id] === size ? "pp-size-active" : ""}`}
+                            className={`pp-size ${NUMBER_SIZES.includes(size) ? "pp-size-shoe" : ""} ${selectedSizes[product._id] === size ? "pp-size-active" : ""}`}
                             onClick={() => handleSizeSelect(product._id, size)}
                           >
                             {size}

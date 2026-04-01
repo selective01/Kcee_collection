@@ -1,11 +1,40 @@
 // routes/messageRoutes.js — Phase 4 Backend
 // Public: POST /api/messages (customer contact form)
-// Admin: GET, PUT (read/replied), DELETE
+// Admin: GET, PUT (read/replied), DELETE, POST /reply
 import express from "express";
 import Message from "../models/Message.js";
 import { protectAdmin } from "../middleware/authMiddleware.js";
+import nodemailer from "nodemailer";
 
 const router = express.Router();
+
+/* ─── ADMIN: Reply to message ────────────────────────────────────────── */
+// POST /api/messages/reply — must be before POST / to avoid route collision
+router.post("/reply", protectAdmin, async (req, res) => {
+  const { messageId, to, subject, body } = req.body;
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    await transporter.sendMail({
+      from: `"Kcee Collection" <${process.env.EMAIL_USER}>`,
+      to,
+      subject,
+      text: body,
+    });
+
+    await Message.findByIdAndUpdate(messageId, { replied: true, read: true });
+    res.json({ msg: "Reply sent" });
+  } catch (err) {
+    console.error("Reply error:", err.message);
+    res.status(500).json({ msg: "Failed to send reply" });
+  }
+});
 
 /* ─── PUBLIC: Submit contact message ─────────────────────────────────── */
 // POST /api/messages
@@ -24,7 +53,6 @@ router.post("/", async (req, res) => {
     }
 
     const message = await Message.create({ name, email, subject, body });
-
     res.status(201).json({ msg: "Message sent successfully", id: message._id });
   } catch (err) {
     console.error("Create message error:", err);

@@ -6,8 +6,6 @@ export default function Polo() {
       title="Polo"
       description="Premium Polo Shirts"
       seoUrl="/polo"
-      sizes={["S", "M", "L", "XL", "XXL"]}
-      sizeClass="size-option"
     />
   );
 }

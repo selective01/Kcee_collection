@@ -1,8 +1,7 @@
 // AdminMessages.tsx — Phase 3
-// Customer support inbox: view messages, mark read/unread, reply via email, delete
-// Requires: GET /api/messages, PUT /api/messages/:id, DELETE /api/messages/:id
+// Customer support inbox: view messages, mark read/unread, reply inline, delete
 import { useEffect, useState } from "react";
-import { get, put, del } from "@/utils/api";
+import { get, put, del, post } from "@/utils/api";
 import { formatDateTime } from "@/utils/format";
 import "../../assets/css/adminMessages.css";
 
@@ -28,6 +27,11 @@ export default function AdminMessages() {
   const [deleting, setDeleting]     = useState<string | null>(null);
   const [toast, setToast]           = useState("");
 
+  // Reply state
+  const [showReply, setShowReply]   = useState(false);
+  const [replyBody, setReplyBody]   = useState("");
+  const [replying, setReplying]     = useState(false);
+
   useEffect(() => { fetchMessages(); }, []);
 
   const fetchMessages = () => {
@@ -45,9 +49,11 @@ export default function AdminMessages() {
 
   const openMessage = async (m: Message) => {
     setSelected(m);
+    setShowReply(false);
+    setReplyBody("");
     if (!m.read) {
       try {
-        const updated = await put<Message>(`/messages/${m._id}`, { read: true });
+        const updated = await put<Message>(`/api/messages/${m._id}`, { read: true });
         setMessages((prev) => prev.map((x) => (x._id === m._id ? updated : x)));
         setSelected(updated);
       } catch { /* silent */ }
@@ -57,7 +63,7 @@ export default function AdminMessages() {
   const toggleRead = async (m: Message, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
-      const updated = await put<Message>(`/messages/${m._id}`, { read: !m.read });
+      const updated = await put<Message>(`/api/messages/${m._id}`, { read: !m.read });
       setMessages((prev) => prev.map((x) => (x._id === m._id ? updated : x)));
       if (selected?._id === m._id) setSelected(updated);
     } catch {
@@ -67,12 +73,32 @@ export default function AdminMessages() {
 
   const markReplied = async (m: Message) => {
     try {
-      const updated = await put<Message>(`/messages/${m._id}`, { replied: true, read: true });
+      const updated = await put<Message>(`/api/messages/${m._id}`, { replied: true, read: true });
       setMessages((prev) => prev.map((x) => (x._id === m._id ? updated : x)));
       setSelected(updated);
-      showToast("Marked as replied");
     } catch {
       showToast("Failed to update");
+    }
+  };
+
+  const sendReply = async () => {
+    if (!selected || !replyBody.trim()) return;
+    setReplying(true);
+    try {
+      await post("/api/messages/reply", {
+        messageId: selected._id,
+        to: selected.email,
+        subject: `Re: ${selected.subject}`,
+        body: replyBody,
+      });
+      await markReplied(selected);
+      setReplyBody("");
+      setShowReply(false);
+      showToast("Reply sent successfully");
+    } catch {
+      showToast("Failed to send reply");
+    } finally {
+      setReplying(false);
     }
   };
 
@@ -80,7 +106,7 @@ export default function AdminMessages() {
     if (!window.confirm("Delete this message? This cannot be undone.")) return;
     setDeleting(id);
     try {
-      await del(`/messages/${id}`);
+      await del(`/api/messages/${id}`);
       setMessages((prev) => prev.filter((m) => m._id !== id));
       if (selected?._id === id) setSelected(null);
       showToast("Message deleted");
@@ -281,13 +307,12 @@ export default function AdminMessages() {
 
                 {/* Actions */}
                 <div className="msg-detail-actions">
-                  <a
-                    href={`mailto:${selected.email}?subject=Re: ${encodeURIComponent(selected.subject)}&body=%0A%0A---%0AOriginal message from ${selected.name}:%0A${encodeURIComponent(selected.body)}`}
+                  <button
                     className="msg-reply-btn"
-                    onClick={() => markReplied(selected)}
+                    onClick={() => { setShowReply(!showReply); setReplyBody(""); }}
                   >
-                    <i className="fas fa-reply" /> Reply via Email
-                  </a>
+                    <i className="fas fa-reply" /> {showReply ? "Cancel" : "Reply"}
+                  </button>
 
                   {!selected.replied && (
                     <button className="msg-mark-btn" onClick={() => markReplied(selected)}>
@@ -306,6 +331,40 @@ export default function AdminMessages() {
                     }
                   </button>
                 </div>
+
+                {/* Inline reply form */}
+                {showReply && (
+                  <div className="msg-reply-form">
+                    <p className="msg-reply-to">
+                      <i className="fas fa-paper-plane" /> Replying to <strong>{selected.email}</strong>
+                    </p>
+                    <textarea
+                      className="msg-reply-textarea"
+                      placeholder="Write your reply..."
+                      value={replyBody}
+                      onChange={(e) => setReplyBody(e.target.value)}
+                      rows={5}
+                    />
+                    <div className="msg-reply-form-actions">
+                      <button
+                        className="msg-reply-send-btn"
+                        onClick={sendReply}
+                        disabled={replying || !replyBody.trim()}
+                      >
+                        {replying
+                          ? <><i className="fas fa-spinner fa-spin" /> Sending...</>
+                          : <><i className="fas fa-paper-plane" /> Send Reply</>
+                        }
+                      </button>
+                      <button
+                        className="msg-reply-cancel-btn"
+                        onClick={() => { setShowReply(false); setReplyBody(""); }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

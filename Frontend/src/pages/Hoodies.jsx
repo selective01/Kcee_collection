@@ -6,8 +6,6 @@ export default function Hoodies() {
       title="Hoodies"
       description="Premium Streetwear Hoodies"
       seoUrl="/hoodies"
-      sizes={["S", "M", "L", "XL", "XXL"]}
-      sizeClass="size-option"
     />
   );
 }

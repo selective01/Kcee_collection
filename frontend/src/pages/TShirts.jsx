@@ -6,8 +6,6 @@ export default function TShirts() {
       title="T-Shirts"
       description="Premium Men's T-Shirts"
       seoUrl="/t-shirts"
-      sizes={["S", "M", "L", "XL", "XXL"]}
-      sizeClass="size-option"
     />
   );
 }

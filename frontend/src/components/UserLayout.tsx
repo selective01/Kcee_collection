@@ -1,15 +1,9 @@
 // UserLayout.tsx — Jumia-style sidebar layout with KceeCollection design colors
-import { useEffect, useState } from "react";
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link, Outlet, useLocation, useNavigate, Navigate } from "react-router-dom";
+import { useAuth } from "../context/useAuth";
 import Navbar from "./Navbar";
-
-interface User {
-  name: string;
-  email: string;
-}
-
-const getInitials = (name: string) =>
-  name?.split(" ").slice(0, 2).map((n) => n[0]).join("").toUpperCase() || "?";
+import UserAvatar from "./UserAvatar";
 
 const NAV_ITEMS = [
   { to: "/orders",   icon: "fa-box",          label: "My Orders"  },
@@ -22,18 +16,16 @@ const NAV_ITEMS = [
 export default function UserLayout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [user, setUser]         = useState<User | null>(null);
+  const { user, loading, logout: authLogout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("user");
-    if (!stored) { navigate("/auth"); return; }
-    setUser(JSON.parse(stored));
-  }, [navigate]);
+  console.log("UserLayout — loading:", loading, "user:", user);
+  
+  if (loading) return null;
+  if (!user) return <Navigate to="/auth" replace />;
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    authLogout();
     navigate("/auth");
   };
 
@@ -310,9 +302,12 @@ export default function UserLayout() {
 
             {/* User banner */}
             <div className="ul-user-row">
-              <div className="ul-avatar">
-                {user ? getInitials(user.name) : "?"}
-              </div>
+              <UserAvatar
+                avatar={(user as any)?.avatar}
+                name={user?.name || ""}
+                size={42}
+                style={{ border: "2px solid rgba(255,255,255,0.4)", flexShrink: 0 }}
+              />
               <div style={{ overflow: "hidden" }}>
                 <p className="ul-user-name">{user?.name || "..."}</p>
                 <p className="ul-user-email">{user?.email || ""}</p>

@@ -6,8 +6,6 @@ export default function Shorts() {
       title="Shorts"
       description="Premium Men's Shorts"
       seoUrl="/shorts"
-      sizes={["S", "M", "L", "XL", "XXL"]}
-      sizeClass="size-option"
     />
   );
 }

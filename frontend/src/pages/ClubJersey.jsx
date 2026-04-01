@@ -6,8 +6,6 @@ export default function ClubJersey() {
       title="Club Jersey"
       description="Authentic Club Football Jerseys"
       seoUrl="/club-jersey"
-      sizes={["S", "M", "L", "XL", "XXL"]}
-      sizeClass="size-option"
     />
   );
 }

@@ -6,8 +6,6 @@ export default function DesignerShirts() {
       title="Designer Shirts"
       description="Premium Designer Shirts"
       seoUrl="/designer-shirts"
-      sizes={["S", "M", "L", "XL", "XXL"]}
-      sizeClass="size-option"
     />
   );
 }

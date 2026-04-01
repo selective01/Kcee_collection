@@ -6,8 +6,6 @@ export default function Sleeveless() {
       title="Sleeveless"
       description="Premium Sleeveless Tops"
       seoUrl="/sleeveless"
-      sizes={["S", "M", "L", "XL", "XXL"]}
-      sizeClass="size-option"
     />
   );
 }
