@@ -54,6 +54,17 @@ export default function Checkout() {
   useEffect(() => { formRef.current          = form;          }, [form]);
   useEffect(() => { selectedRateRef.current  = selectedRate;  }, [selectedRate]);
   useEffect(() => { cartItemsRef.current     = cartItems;     }, [cartItems]);
+  // Load Paystack script only on Checkout — not on every page
+  useEffect(() => {
+    if (window.PaystackPop) return; // already loaded
+    const script = document.createElement("script");
+    script.src = "https://js.paystack.co/v2/inline.js";
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      // leave the script in the DOM once loaded — removing it breaks PaystackPop
+    };
+  }, []);
   useEffect(() => { appliedCouponRef.current = appliedCoupon; }, [appliedCoupon]);
 
   // Autofill from user profile

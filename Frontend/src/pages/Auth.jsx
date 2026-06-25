@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import "../assets/css/auth.css";
-import crown from "../assets/Icons/crown.png";
+import crown from "../assets/Icons/crown.webp";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import SEO from "../components/SEO";
