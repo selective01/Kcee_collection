@@ -8,7 +8,7 @@ import { AuthProvider } from "./context/AuthProvider";
 import { BrowserRouter } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import "./assets/css/style.css";
-import "./lib/icons"; // tree-shakeable FA — replaces all.min.css
+import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./assets/css/footer.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
