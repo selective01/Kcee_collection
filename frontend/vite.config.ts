@@ -37,7 +37,13 @@ export default defineConfig({
           "vendor-charts": ["recharts"],
 
           // Icon library — split from main bundle
-          "vendor-icons": ["@fortawesome/fontawesome-free"],
+          "vendor-icons": [
+            "@fortawesome/fontawesome-svg-core",
+            "@fortawesome/free-solid-svg-icons",
+            "@fortawesome/free-regular-svg-icons",
+            "@fortawesome/free-brands-svg-icons",
+            "@fortawesome/react-fontawesome",
+          ],
         },
       },
     },
