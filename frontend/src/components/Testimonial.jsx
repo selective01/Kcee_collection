@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import "../assets/css/testimonial.css";
-import Avartar1 from "../assets/My_Collections/Avartars/Avartar (1).jpg";
-import Avartar2 from "../assets/My_Collections/Avartars/Avartar (2).jpg";
-import Avartar3 from "../assets/My_Collections/Avartars/Avartar (3).jpg";
-import Avartar4 from "../assets/My_Collections/Avartars/Avartar (4).jpg";
-import Avartar5 from "../assets/My_Collections/Avartars/Avartar (5).jpg";
-import Avartar6 from "../assets/My_Collections/Avartars/Avartar (6).jpg";
+import Avartar1 from "../assets/My_Collections/Avartars/Avartar (1).webp";
+import Avartar2 from "../assets/My_Collections/Avartars/Avartar (2).webp";
+import Avartar3 from "../assets/My_Collections/Avartars/Avartar (3).webp";
+import Avartar4 from "../assets/My_Collections/Avartars/Avartar (4).webp";
+import Avartar5 from "../assets/My_Collections/Avartars/Avartar (5).webp";
+import Avartar6 from "../assets/My_Collections/Avartars/Avartar (6).webp";
 
 const testimonials = [
   {

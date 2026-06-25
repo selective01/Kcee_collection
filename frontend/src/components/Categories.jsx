@@ -5,24 +5,24 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../assets/css/categories.css";
 
-import bagsImg         from "../assets/My_Collections/Bags/Bag (1).jpg";
-import capImg          from "../assets/My_Collections/Caps/Cap (1).jpg";
-import tShirtImg       from "../assets/My_Collections/Tshirts/Tshirt (1).jpg";
-import retroJerseyImg  from "../assets/My_Collections/RetroJersey/RetroJersey (1).jpg";
-import hoodieImg       from "../assets/My_Collections/Hoodie/Hoodie (1).jpg";
-import jeanShortsImg   from "../assets/My_Collections/JeanShorts/JeanShort (1).jpg";
-import joggersImg      from "../assets/My_Collections/Joggers/Joggers (1).jpg";
-import designerShirtsImg from "../assets/My_Collections/DesignerShirts/DesignerShirt (1).jpg";
-import sneakersImg     from "../assets/My_Collections/Sneakers/Sneakers (1).jpg";
-import slippersImg     from "../assets/My_Collections/Slippers/Slippers (1).jpg";
-import poloImg         from "../assets/My_Collections/Polo/Polo (1).jpg";
-import sleevelessImg   from "../assets/My_Collections/Sleeveless/Sleeveless (1).jpg";
-import jeansImg        from "../assets/My_Collections/Jeans/Jean (1).jpg";
-import clubJerseyImg   from "../assets/My_Collections/ClubJersey/ClubJersey (1).jpg";
-import perfumeImg      from "../assets/My_Collections/Perfume/Perfume (1).jpg";
-import shortsImg       from "../assets/My_Collections/Shorts/Short (1).jpg";
-import WatchesImg      from "../assets/My_Collections/Watches/Watch (1).jpg";
-import ShoesImg        from "../assets/My_Collections/Shoes/Shoe (1).jpg";
+import bagsImg         from "../assets/My_Collections/Bags/Bag (1).webp";
+import capImg          from "../assets/My_Collections/Caps/Cap (1).webp";
+import tShirtImg       from "../assets/My_Collections/Tshirts/Tshirt (1).webp";
+import retroJerseyImg  from "../assets/My_Collections/RetroJersey/RetroJersey (1).webp";
+import hoodieImg       from "../assets/My_Collections/Hoodie/Hoodie (1).webp";
+import jeanShortsImg   from "../assets/My_Collections/JeanShorts/JeanShort (1).webp";
+import joggersImg      from "../assets/My_Collections/Joggers/Joggers (1).webp";
+import designerShirtsImg from "../assets/My_Collections/DesignerShirts/DesignerShirt (1).webp";
+import sneakersImg     from "../assets/My_Collections/Sneakers/Sneakers (1).webp";
+import slippersImg     from "../assets/My_Collections/Slippers/Slippers (1).webp";
+import poloImg         from "../assets/My_Collections/Polo/Polo (1).webp";
+import sleevelessImg   from "../assets/My_Collections/Sleeveless/Sleeveless (1).webp";
+import jeansImg        from "../assets/My_Collections/Jeans/Jean (1).webp";
+import clubJerseyImg   from "../assets/My_Collections/ClubJersey/ClubJersey (1).webp";
+import perfumeImg      from "../assets/My_Collections/Perfume/Perfume (1).webp";
+import shortsImg       from "../assets/My_Collections/Shorts/Short (1).webp";
+import WatchesImg      from "../assets/My_Collections/Watches/Watch (1).webp";
+import ShoesImg        from "../assets/My_Collections/Shoes/Shoe (1).webp";
 
 const ALL_PRODUCTS = [
   { title: "T-Shirts",        href: "/t-shirts",        img: tShirtImg,         tag: "Tops"      },
